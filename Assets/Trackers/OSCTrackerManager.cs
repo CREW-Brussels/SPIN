@@ -4,10 +4,11 @@ using System;
 using UnityEngine;
 using Wave.Essence.Tracker;
 
-public class InitTracker : MonoBehaviour
+public class OSCTrackerManager : MonoBehaviour
 {
     public OscConnection oscConnection;
-    public string oscAddress;
+
+    public string OSCDeviceName;
 
     public OscClient oscClient;
 
@@ -17,11 +18,11 @@ public class InitTracker : MonoBehaviour
     {
         TrackerManager.Instance.StartTracker();
 
-        if (string.IsNullOrEmpty(oscAddress))
+        if (string.IsNullOrEmpty(OSCDeviceName))
         {
-            oscAddress = SystemInfo.deviceName;
-            if (string.IsNullOrEmpty(oscAddress) || oscAddress == "<unknown>")
-                oscAddress = "Spin";
+            OSCDeviceName = SystemInfo.deviceName;
+            if (string.IsNullOrEmpty(OSCDeviceName) || OSCDeviceName == "<unknown>")
+                OSCDeviceName = "Spin";
         }
 
         foreach (TrackerId trackerId in (TrackerId[])Enum.GetValues(typeof(TrackerId)))
@@ -31,16 +32,26 @@ public class InitTracker : MonoBehaviour
             TrackerInstance.GetComponent<Tracker>().Init(trackerId, this);
         }
 
-        ConnectOSC();
+        ConnectOSCClients();
     }
 
-    public void ConnectOSC()
+    private void OnDestroy()
+    {
+        DisconnectOSCClients();
+    }
+
+    private void DisconnectOSCClients()
     {
         if (oscClient != null)
         {
             oscClient.Dispose();
             oscClient = null;
         }
+    }
+
+    public void ConnectOSCClients()
+    {
+        DisconnectOSCClients();
 
         oscClient = new OscClient(oscConnection.host, oscConnection.port);
     }

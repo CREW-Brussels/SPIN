@@ -18,11 +18,11 @@ public class Tracker : MonoBehaviour
     private TrackerManager trackerManager;
     private TrackerId TrackerId;
     private string OSCAddress;
-    private InitTracker InitTracker;
+    private OSCTrackerManager OSCTracker;
 
-    public void Init(TrackerId trackerId, InitTracker initTracker)
+    public void Init(TrackerId trackerId, OSCTrackerManager oscTracker)
     {
-        this.InitTracker = initTracker;  
+        this.OSCTracker = oscTracker;  
         trackerManager = TrackerManager.Instance;
         TrackerId = trackerId;
 
@@ -40,7 +40,7 @@ public class Tracker : MonoBehaviour
             TrackerRole = TrackerId.ToString();
 
         if (adr == null)
-            OSCAddress = "/" + InitTracker.oscAddress.Trim('/').Trim() + "/" + TrackerRole.Trim('/').Trim();
+            OSCAddress = "/" + OSCTracker.OSCDeviceName.Trim('/').Trim() + "/" + TrackerRole.Trim('/').Trim();
         else
             OSCAddress = adr;
 
@@ -66,7 +66,7 @@ public class Tracker : MonoBehaviour
             }
         }
     }
-    private bool _ShowInfo;
+    private bool _ShowInfo = true;
 
     private float BatteryValue
     {
@@ -111,9 +111,9 @@ public class Tracker : MonoBehaviour
     private InputTrackingState _TrackingState;
     private void SendOSCMessage()
     {
-        InitTracker.oscClient.Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
-        InitTracker.oscClient.Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
-        InitTracker.oscClient.Send(OSCAddress + "/Battery", trackerManager.GetTrackerBatteryLife(TrackerId));
+        OSCTracker.oscClient.Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
+        OSCTracker.oscClient.Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
+        OSCTracker.oscClient.Send(OSCAddress + "/Battery", trackerManager.GetTrackerBatteryLife(TrackerId));
     }
 
     void Update()
