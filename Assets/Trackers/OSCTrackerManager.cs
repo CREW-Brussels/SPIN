@@ -11,7 +11,7 @@ public class OSCTrackerConfig
     [Serializable]
     public class TrackerConfig
     {
-        public int[] Servers;
+        public List<int> Servers;
         public int Role;
         public float Battery;
         public bool Active;
@@ -35,13 +35,16 @@ public class OSCTrackerManager : MonoBehaviour
     public GameObject TrackerPrefab;
 
     //TODO: make persistent
-    public OSCTrackerConfig OSCTrackersConfig;
+    public OSCTrackerConfig OSCTrackersConfig = new OSCTrackerConfig();
 
     void Start()
     {
         TrackerManager.Instance.StartTracker();
 
         SetDeviceName();
+
+        if (OSCTrackersConfig.Servers.Count == 0)
+            OSCTrackersConfig.Servers.Add(new OscConnection { host = "255.255.255.255", port = 8000 });
 
         SpawnTrackerInstances();
 
@@ -52,8 +55,12 @@ public class OSCTrackerManager : MonoBehaviour
     {
         foreach (TrackerId trackerId in (TrackerId[])Enum.GetValues(typeof(TrackerId)))
         {
+
             if (!OSCTrackersConfig.TrackerIds.ContainsKey(trackerId))
-                OSCTrackersConfig.TrackerIds.Add(trackerId, new OSCTrackerConfig.TrackerConfig());
+            {
+                OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
+                OSCTrackersConfig.TrackerIds.Add(trackerId, new OSCTrackerConfig.TrackerConfig { Active = true, Role = OSCTrackersConfig.TrackersRoles.Count - 1, Servers = new List<int> { 0 } });
+            }
 
 
             GameObject TrackerInstance = Instantiate(TrackerPrefab, transform);
