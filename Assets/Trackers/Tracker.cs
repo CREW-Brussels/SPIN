@@ -13,16 +13,14 @@ public class Tracker : MonoBehaviour
     public TMP_Text Status;
     public TMP_Text Bat;
 
-    public string TrackerRole;
-
+    private string OSCAddress;
     private TrackerManager trackerManager;
     private TrackerId TrackerId;
-    private string OSCAddress;
-    private OSCTrackerManager OSCTracker;
+    private OSCTrackerConfig oscTrackersConfig;
 
-    public void Init(TrackerId trackerId, OSCTrackerManager oscTracker)
+    public void Init(TrackerId trackerId, OSCTrackerConfig TrackersConfig)
     {
-        this.OSCTracker = oscTracker;  
+        oscTrackersConfig = TrackersConfig;  
         trackerManager = TrackerManager.Instance;
         TrackerId = trackerId;
 
@@ -30,17 +28,18 @@ public class Tracker : MonoBehaviour
             ID.text = trackerId.ToString();
         if (Name != null )
             Name.text = trackerManager.GetTrackerDeviceName(trackerId);
+        oscTrackersConfig.TrackerIds[trackerId].Name = trackerManager.GetTrackerDeviceName(trackerId);
 
         UpdateOSCAddress();
     }
 
     public string UpdateOSCAddress(string adr = null)
     {
-        if (string.IsNullOrEmpty(TrackerRole))
-            TrackerRole = TrackerId.ToString();
+        if (string.IsNullOrEmpty(oscTrackersConfig.TrackersRoles[oscTrackersConfig.TrackerIds[TrackerId].Role]))
+            oscTrackersConfig.TrackersRoles[oscTrackersConfig.TrackerIds[TrackerId].Role] = TrackerId.ToString();
 
         if (adr == null)
-            OSCAddress = "/" + OSCTracker.OSCDeviceName.Trim('/').Trim() + "/" + TrackerRole.Trim('/').Trim();
+            OSCAddress = "/" + oscTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + oscTrackersConfig.TrackersRoles[oscTrackersConfig.TrackerIds[TrackerId].Role].Trim('/').Trim();
         else
             OSCAddress = adr;
 
@@ -63,6 +62,7 @@ public class Tracker : MonoBehaviour
                 _ShowInfo = value;
                 if (Canvas != null)
                     Canvas.SetActive(value);
+                oscTrackersConfig.TrackerIds[TrackerId].Online = value;
             }
         }
     }
@@ -81,6 +81,7 @@ public class Tracker : MonoBehaviour
                 _BatteryValue = value;
                 if (Bat != null)
                     Bat.text = "Battery " + trackerManager.GetTrackerBatteryLife(TrackerId).ToString("P1", CultureInfo.InvariantCulture);
+                oscTrackersConfig.TrackerIds[TrackerId].Battery = value;
             }
         }
     }
@@ -105,15 +106,23 @@ public class Tracker : MonoBehaviour
                     Status.richText = true;
                     Status.text = $"<color=\"{pos}\">Position <color=\"{rot}\">Rotation";
                 }
+                oscTrackersConfig.TrackerIds[TrackerId].TrackingPosition = (value & InputTrackingState.Position) != 0;
+                oscTrackersConfig.TrackerIds[TrackerId].TrackingRotation = (value & InputTrackingState.Rotation) != 0;
             }
         }
     }
     private InputTrackingState _TrackingState;
     private void SendOSCMessage()
     {
-        OSCTracker.oscClient.Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
-        OSCTracker.oscClient.Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
-        OSCTracker.oscClient.Send(OSCAddress + "/Battery", trackerManager.GetTrackerBatteryLife(TrackerId));
+        if (oscTrackersConfig.TrackerIds[TrackerId].Active)
+        {
+            foreach (int server in oscTrackersConfig.TrackerIds[TrackerId].Servers)
+            {
+                oscTrackersConfig.oscClients[server].Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
+                oscTrackersConfig.oscClients[server].Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
+                oscTrackersConfig.oscClients[server].Send(OSCAddress + "/Battery", trackerManager.GetTrackerBatteryLife(TrackerId));
+            }
+        }
     }
 
     void Update()
