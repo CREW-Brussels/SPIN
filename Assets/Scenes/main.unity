@@ -192,8 +192,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5c59307869131c40ab1a2eaab63f3d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  oscConnection: {fileID: 11400000, guid: 11fe734dbeb45b544a14c09c4f794e6d, type: 2}
-  oscAddress: 
   TrackerPrefab: {fileID: 335395462832644500, guid: 1c5726c27c456bb49bdf91056fbe44fb,
     type: 3}
 --- !u!1 &357608549
@@ -436,6 +434,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &801188250
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 801188252}
+  - component: {fileID: 801188251}
+  m_Layer: 0
+  m_Name: SpinConfigManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &801188251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 801188250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b3bdac9d64183b4b99f2ffd3685015c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DefaultServer: 255.255.255.255
+  DefaultPort: 8000
+  DefaultDeviceName: Spin
+  OSCTrackersConfig:
+    OSCDeviceName: 
+    Servers: []
+    TrackersRoles: []
+--- !u!4 &801188252
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 801188250}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1722623867
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,3 +546,4 @@ SceneRoots:
   - {fileID: 1722623869}
   - {fileID: 357608552}
   - {fileID: 174420891}
+  - {fileID: 801188252}
