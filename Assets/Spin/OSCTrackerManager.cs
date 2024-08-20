@@ -33,17 +33,27 @@ public class OSCTrackerManager : MonoBehaviour
         foreach (TrackerId trackerId in (TrackerId[])Enum.GetValues(typeof(TrackerId)))
         {
 
-            if (!SpinConfigManager.OSCTrackersConfig.TrackerIds.ContainsKey(trackerId))
+            if (SpinConfigManager.OSCTrackersConfig.TrackerIds.Length <= (int)trackerId)
+                Array.Resize(ref SpinConfigManager.OSCTrackersConfig.TrackerIds, (int)trackerId + 1);
+
+
+            if (SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] == null || string.IsNullOrEmpty(SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name))
             {
-                SpinConfigManager.OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
-                SpinConfigManager.OSCTrackersConfig.TrackerIds.Add(trackerId, new TrackerConfig { Active = true, Role = SpinConfigManager.OSCTrackersConfig.TrackersRoles.Count - 1, Servers = new List<int> { 0 } });
+                int i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.IndexOf(trackerId.ToString());
+
+                if (i == -1)
+                {
+                    SpinConfigManager.OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
+                    i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.Count - 1;
+                }
+                SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] = new TrackerConfig { Active = true, Role = i, Servers = new List<int> { 0 } };
             }
 
             GameObject TrackerInstance = Instantiate(TrackerPrefab, transform);
 
             TrackerInstance.transform.name = trackerId.ToString();
-            SpinConfigManager.OSCTrackersConfig.TrackerIds[trackerId].tracker = TrackerInstance.GetComponent<Tracker>();
-            SpinConfigManager.OSCTrackersConfig.TrackerIds[trackerId].tracker.Init(trackerId, SpinConfigManager.OSCTrackersConfig);
+            SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker = TrackerInstance.GetComponent<Tracker>();
+            SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker.Init(trackerId);
         }
         SpinConfigManager.SaveSpinConfig();
     }

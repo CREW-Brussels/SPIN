@@ -23,20 +23,29 @@ public class Tracker : MonoBehaviour
     private TrackerId TrackerId;
     private SpinConfigManager spinConfigManager;
 
-    public void Init(TrackerId trackerId, OSCTrackerConfig TrackersConfig)
+    public void Init(TrackerId trackerId)
     {
-        spinConfigManager = SpinConfigManager.Instance;
-        spinConfigManager.ConfigUpdatedEvent += ConfigUpdateEvent;
-        trackerManager = TrackerManager.Instance;
         TrackerId = trackerId;
+
+        spinConfigManager = SpinConfigManager.Instance;
+        trackerManager = TrackerManager.Instance;
+
+        spinConfigManager.ConfigUpdatedEvent += ConfigUpdateEvent;
 
         if (ID != null )
             ID.text = trackerId.ToString();
+
+        string name = trackerManager.GetTrackerDeviceName(trackerId);
+        if (string.IsNullOrEmpty(name))
+            name = trackerId.ToString();
+
         if (Name != null )
-            Name.text = trackerManager.GetTrackerDeviceName(trackerId);
-        spinConfigManager.OSCTrackersConfig.TrackerIds[trackerId].Name = trackerManager.GetTrackerDeviceName(trackerId);
+            Name.text = name;
+
+        spinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name = name;
 
         UpdateOSCAddress();
+
         SpinConfigManager.Instance.SaveSpinConfig();
     }
 
@@ -44,11 +53,11 @@ public class Tracker : MonoBehaviour
 
     public string UpdateOSCAddress(string adr = null)
     {
-        if (string.IsNullOrEmpty(spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Role]))
-            spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Role] = TrackerId.ToString();
+        if (string.IsNullOrEmpty(spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Role]))
+            spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Role] = TrackerId.ToString();
 
         if (adr == null)
-            OSCAddress = "/" + spinConfigManager.OSCTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Role].Trim('/').Trim();
+            OSCAddress = "/" + spinConfigManager.OSCTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Role].Trim('/').Trim();
         else
             OSCAddress = adr;
 
@@ -71,7 +80,7 @@ public class Tracker : MonoBehaviour
                 _ShowInfo = value;
                 if (Canvas != null)
                     Canvas.SetActive(value);
-                spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Online = value;
+                spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Online = value;
             }
         }
     }
@@ -90,7 +99,7 @@ public class Tracker : MonoBehaviour
                 _BatteryValue = value;
                 if (Bat != null)
                     Bat.text = "Battery " + trackerManager.GetTrackerBatteryLife(TrackerId).ToString("P1", CultureInfo.InvariantCulture);
-                spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Battery = value;
+                spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Battery = value;
             }
         }
     }
@@ -115,8 +124,8 @@ public class Tracker : MonoBehaviour
                     Status.richText = true;
                     Status.text = $"<color=\"{pos}\">Position <color=\"{rot}\">Rotation";
                 }
-                spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].TrackingPosition = (value & InputTrackingState.Position) != 0;
-                spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].TrackingRotation = (value & InputTrackingState.Rotation) != 0;
+                spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].TrackingPosition = (value & InputTrackingState.Position) != 0;
+                spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].TrackingRotation = (value & InputTrackingState.Rotation) != 0;
             }
         }
     }
@@ -124,12 +133,12 @@ public class Tracker : MonoBehaviour
     private void SendOSCMessage()
     {
 #if UNITY_EDITOR
-        if (spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Active || Debug)
+        if (spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Active || Debug)
 #else
         if (spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Active)
 #endif
         {
-            foreach (int server in spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Servers)
+            foreach (int server in spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Servers)
             {
                 if (spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
                 {

@@ -17,14 +17,6 @@ public class Connection
         this.port = port;
         this.host = host;
     }
-
-    OscConnection toOscConnection()
-    {
-        OscConnection connection = OscConnection.CreateInstance<OscConnection>();
-        connection.host = host;
-        connection.port = port;
-        return connection;
-    }
 }
 
 [Serializable]
@@ -32,24 +24,25 @@ public class TrackerConfig
 {
     public List<int> Servers;
     public int Role;
-    public float Battery;
-    public bool Active;
-    public bool Online;
     public string Name;
-    public bool TrackingPosition;
-    public bool TrackingRotation;
-    public Tracker tracker;
+
+    [NonSerialized] public Tracker tracker;
+    [NonSerialized] public float Battery;
+    [NonSerialized] public bool Active;
+    [NonSerialized] public bool Online;
+    [NonSerialized] public bool TrackingPosition;
+    [NonSerialized] public bool TrackingRotation;
 }
 
 [Serializable]
 public class OSCTrackerConfig
 {
     public string OSCDeviceName;
-
     public List<Connection> Servers = new List<Connection>();
     public List<string> TrackersRoles = new List<string>();
-    public List<OscClient> oscClients = new List<OscClient>();
-    public Dictionary<TrackerId, TrackerConfig> TrackerIds = new Dictionary<TrackerId, TrackerConfig>();
+    public TrackerConfig[] TrackerIds = new TrackerConfig[16];
+
+    [NonSerialized] public List<OscClient> oscClients = new List<OscClient>();
 }
 
 
@@ -70,7 +63,7 @@ public class SpinConfigManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        ClearSpinConfig();
+        //ClearSpinConfig();
     }
 
     void Start() => RestoreSpinConfig();
