@@ -1,0 +1,19 @@
+{
+    "name": "Brussels.Crew.Spin",
+    "rootNamespace": "Brussels.Crew.Spin",
+    "references": [
+        "GUID:9df4bb2434fa4444a85e58f9b2d5d6d2",
+        "GUID:dc6ae5be80485d949a25aa157e051ed8",
+        "GUID:b7c74153ccbcf534aa653a77f62bd182",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
