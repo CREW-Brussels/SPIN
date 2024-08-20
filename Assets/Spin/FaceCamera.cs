@@ -1,19 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class FaceCamera : MonoBehaviour
+namespace Brussels.Crew.Spin
 {
-    // Start is called before the first frame update
-    void Start()
+
+    public class FaceCamera : MonoBehaviour
     {
+        void Update()
+        {
+            Transform camPos = Camera.main.transform;
+            transform.LookAt(camPos.position);
+            transform.Rotate(Vector3.up, 180);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        Transform camPos = Camera.main.transform;
-        transform.LookAt(camPos.position);
-        transform.Rotate(Vector3.up, 180);
-    }
 }

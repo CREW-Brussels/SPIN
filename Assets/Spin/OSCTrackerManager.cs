@@ -4,88 +4,93 @@ using System.Collections.Generic;
 using UnityEngine;
 using Wave.Essence.Tracker;
 
-public class OSCTrackerManager : MonoBehaviour
+namespace Brussels.Crew.Spin
 {
-    public GameObject TrackerPrefab;
 
-    private SpinConfigManager SpinConfigManager;
-
-    void Start()
+    public class OSCTrackerManager : MonoBehaviour
     {
-        TrackerManager.Instance.StartTracker();
+        public GameObject TrackerPrefab;
 
-        SpinConfigManager = SpinConfigManager.Instance;
+        private SpinConfigManager SpinConfigManager;
 
-        SpinConfigManager.ConfigUpdatedEvent += ConfigUpdated;
-
-        SpawnTrackerInstances();
-
-        SpinConfigManager.SaveSpinConfig();
-    }
-
-    private void ConfigUpdated()
-    {
-        ConnectToOscServers();
-    }
-
-    private void SpawnTrackerInstances()
-    {
-        foreach (TrackerId trackerId in (TrackerId[])Enum.GetValues(typeof(TrackerId)))
+        void Start()
         {
+            TrackerManager.Instance.StartTracker();
 
-            if (SpinConfigManager.OSCTrackersConfig.TrackerIds.Length <= (int)trackerId)
-                Array.Resize(ref SpinConfigManager.OSCTrackersConfig.TrackerIds, (int)trackerId + 1);
+            SpinConfigManager = SpinConfigManager.Instance;
 
+            SpinConfigManager.ConfigUpdatedEvent += ConfigUpdated;
 
-            if (SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] == null || string.IsNullOrEmpty(SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name))
+            SpawnTrackerInstances();
+
+            SpinConfigManager.SaveSpinConfig();
+        }
+
+        private void ConfigUpdated()
+        {
+            ConnectToOscServers();
+        }
+
+        private void SpawnTrackerInstances()
+        {
+            foreach (TrackerId trackerId in (TrackerId[])Enum.GetValues(typeof(TrackerId)))
             {
-                int i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.IndexOf(trackerId.ToString());
 
-                if (i == -1)
+                if (SpinConfigManager.OSCTrackersConfig.TrackerIds.Length <= (int)trackerId)
+                    Array.Resize(ref SpinConfigManager.OSCTrackersConfig.TrackerIds, (int)trackerId + 1);
+
+
+                if (SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] == null || string.IsNullOrEmpty(SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name))
                 {
-                    SpinConfigManager.OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
-                    i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.Count - 1;
+                    int i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.IndexOf(trackerId.ToString());
+
+                    if (i == -1)
+                    {
+                        SpinConfigManager.OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
+                        i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.Count - 1;
+                    }
+                    SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] = new TrackerConfig { Active = true, Role = i, Servers = new List<int> { 0 } };
                 }
-                SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] = new TrackerConfig { Active = true, Role = i, Servers = new List<int> { 0 } };
+
+                GameObject TrackerInstance = Instantiate(TrackerPrefab, transform);
+
+                TrackerInstance.transform.name = trackerId.ToString();
+                SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker = TrackerInstance.GetComponent<Tracker>();
+                SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker.Init(trackerId);
             }
-
-            GameObject TrackerInstance = Instantiate(TrackerPrefab, transform);
-
-            TrackerInstance.transform.name = trackerId.ToString();
-            SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker = TrackerInstance.GetComponent<Tracker>();
-            SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker.Init(trackerId);
+            SpinConfigManager.SaveSpinConfig();
         }
-        SpinConfigManager.SaveSpinConfig();
-    }
 
-    private void DisconnectFromOscServers()
-    {
-        foreach (OscClient client in SpinConfigManager.OSCTrackersConfig.oscClients)
+        private void DisconnectFromOscServers()
         {
-            if (client != null)
-                client.Dispose();
-        }
-        SpinConfigManager.OSCTrackersConfig.oscClients.Clear();
-    }
-
-    private void ConnectToOscServers()
-    {
-        DisconnectFromOscServers();
-
-        foreach (Connection connection in SpinConfigManager.OSCTrackersConfig.Servers)
-        {
-            if ( connection != null)
+            foreach (OscClient client in SpinConfigManager.OSCTrackersConfig.oscClients)
             {
-                OscClient client = new OscClient(connection.host, connection.port);
-                SpinConfigManager.OSCTrackersConfig.oscClients.Add(client);
+                if (client != null)
+                    client.Dispose();
             }
+            SpinConfigManager.OSCTrackersConfig.oscClients.Clear();
+        }
+
+        private void ConnectToOscServers()
+        {
+            DisconnectFromOscServers();
+
+            foreach (SpinConnection connection in SpinConfigManager.OSCTrackersConfig.Servers)
+            {
+                if ( connection != null)
+                {
+                    OscClient client = new OscClient(connection.host, connection.port);
+                    SpinConfigManager.OSCTrackersConfig.oscClients.Add(client);
+                }
+            }
+        }
+
+        private void OnDestroy()
+        {
+            DisconnectFromOscServers();
+            SpinConfigManager.ConfigUpdatedEvent -= ConfigUpdated;
+
         }
     }
 
-    private void OnDestroy()
-    {
-        DisconnectFromOscServers();
-        SpinConfigManager.ConfigUpdatedEvent -= ConfigUpdated;
-
-    }
 }

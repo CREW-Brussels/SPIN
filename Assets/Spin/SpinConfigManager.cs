@@ -1,119 +1,78 @@
-using OscJack;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using Wave.Essence.Tracker;
 
-[Serializable]
-public class Connection
+namespace Brussels.Crew.Spin
 {
-    public int port;
-    public string host;
-    public Connection(int port, string host)
+
+    public class SpinConfigManager : MonoBehaviour
     {
-        this.port = port;
-        this.host = host;
-    }
-}
+        public string DefaultServer = "255.255.255.255";
+        public int DefaultPort = 8000;
+        public string DefaultDeviceName = "Spin";
 
-[Serializable]
-public class TrackerConfig
-{
-    public List<int> Servers;
-    public int Role;
-    public string Name;
+        public OSCTrackerConfig OSCTrackersConfig = new OSCTrackerConfig();
 
-    [NonSerialized] public Tracker tracker;
-    [NonSerialized] public float Battery;
-    [NonSerialized] public bool Active;
-    [NonSerialized] public bool Online;
-    [NonSerialized] public bool TrackingPosition;
-    [NonSerialized] public bool TrackingRotation;
-}
+        public delegate void ConfigUpdated();
+        public ConfigUpdated ConfigUpdatedEvent;
 
-[Serializable]
-public class OSCTrackerConfig
-{
-    public string OSCDeviceName;
-    public List<Connection> Servers = new List<Connection>();
-    public List<string> TrackersRoles = new List<string>();
-    public TrackerConfig[] TrackerIds = new TrackerConfig[16];
+        private static SpinConfigManager instance = null;
+        public static SpinConfigManager Instance => instance;
 
-    [NonSerialized] public List<OscClient> oscClients = new List<OscClient>();
-}
-
-
-public class SpinConfigManager : MonoBehaviour
-{
-    public string DefaultServer = "255.255.255.255";
-    public int DefaultPort = 8000;
-    public string DefaultDeviceName = "Spin";
- 
-    public OSCTrackerConfig OSCTrackersConfig = new OSCTrackerConfig();
-
-    public delegate void ConfigUpdated();
-    public ConfigUpdated ConfigUpdatedEvent;
-
-    private static SpinConfigManager instance = null;
-    public static SpinConfigManager Instance => instance;
-
-    private void Awake()
-    {
-        instance = this;
-        //ClearSpinConfig();
-    }
-
-    void Start() => RestoreSpinConfig();
-
-    private void RestoreSpinConfig()
-    {
-        if (PlayerPrefs.HasKey("SpinConfig"))
+        private void Awake()
         {
-            Debug.Log("Config load " + PlayerPrefs.GetString("SpinConfig"));
-            OSCTrackersConfig = JsonUtility.FromJson<OSCTrackerConfig>(PlayerPrefs.GetString("SpinConfig"));
-        }
- 
-        if (OSCTrackersConfig.Servers.Count == 0)
-        {
-            OSCTrackersConfig.Servers.Add(new Connection(DefaultPort, DefaultServer));
-            SaveSpinConfig();
+            instance = this;
+            //ClearSpinConfig();
         }
 
-        if (string.IsNullOrEmpty(OSCTrackersConfig.OSCDeviceName))
+        void Start() => RestoreSpinConfig();
+
+        private void RestoreSpinConfig()
         {
-            OSCTrackersConfig.OSCDeviceName = SystemInfo.deviceName;
-            if (string.IsNullOrEmpty(OSCTrackersConfig.OSCDeviceName) || OSCTrackersConfig.OSCDeviceName == "<unknown>")
-                OSCTrackersConfig.OSCDeviceName = DefaultDeviceName;
-            SaveSpinConfig();
+            if (PlayerPrefs.HasKey("SpinConfig"))
+            {
+                Debug.Log("Config load " + PlayerPrefs.GetString("SpinConfig"));
+                OSCTrackersConfig = JsonUtility.FromJson<OSCTrackerConfig>(PlayerPrefs.GetString("SpinConfig"));
+            }
+
+            if (OSCTrackersConfig.Servers.Count == 0)
+            {
+                OSCTrackersConfig.Servers.Add(new SpinConnection(DefaultPort, DefaultServer));
+                SaveSpinConfig();
+            }
+
+            if (string.IsNullOrEmpty(OSCTrackersConfig.OSCDeviceName))
+            {
+                OSCTrackersConfig.OSCDeviceName = SystemInfo.deviceName;
+                if (string.IsNullOrEmpty(OSCTrackersConfig.OSCDeviceName) || OSCTrackersConfig.OSCDeviceName == "<unknown>")
+                    OSCTrackersConfig.OSCDeviceName = DefaultDeviceName;
+                SaveSpinConfig();
+            }
+        }
+
+        private bool Save;
+
+        public void SaveSpinConfig()
+        {
+            Save = true;
+        }
+
+        private void LateUpdate()
+        {
+            if (Save)
+            {
+                Save = false;
+                string config = JsonUtility.ToJson(OSCTrackersConfig);
+                Debug.Log("Config save " + config);
+                PlayerPrefs.SetString("SpinConfig", config);
+                if (ConfigUpdatedEvent != null)
+                    ConfigUpdatedEvent.Invoke();
+            }
+        }
+
+        public void ClearSpinConfig()
+        {
+            PlayerPrefs.DeleteAll();
+            RestoreSpinConfig();
         }
     }
 
-    private bool Save;
-
-    public void SaveSpinConfig()
-    {
-        Save = true;
-    }
-
-    private void LateUpdate()
-    {
-        if (Save)
-        {
-            Save = false;
-            string config = JsonUtility.ToJson(OSCTrackersConfig);
-            Debug.Log("Config save " + config);
-            PlayerPrefs.SetString("SpinConfig", config);
-            if (ConfigUpdatedEvent != null)
-                ConfigUpdatedEvent.Invoke();
-        }
-    }
-
-    public void ClearSpinConfig()
-    {
-        PlayerPrefs.DeleteAll();
-        RestoreSpinConfig();
-    }
 }
