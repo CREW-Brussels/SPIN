@@ -137,7 +137,7 @@ namespace Brussels.Crew.Spin
 #if UNITY_EDITOR
             if (spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Active || Debug)
 #else
-        if (spinConfigManager.OSCTrackersConfig.TrackerIds[TrackerId].Active)
+        if (spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Active)
 #endif
             {
                 foreach (int server in spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Servers)
