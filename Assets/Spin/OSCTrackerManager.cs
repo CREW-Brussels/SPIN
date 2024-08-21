@@ -1,6 +1,5 @@
 using OscJack;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using Wave.Essence.Tracker;
 
@@ -42,14 +41,14 @@ namespace Brussels.Crew.Spin
 
                 if (SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] == null || string.IsNullOrEmpty(SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name))
                 {
-                    int i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.IndexOf(trackerId.ToString());
+                    //int i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.IndexOf(trackerId.ToString());
 
-                    if (i == -1)
-                    {
-                        SpinConfigManager.OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
-                        i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.Count - 1;
-                    }
-                    SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] = new TrackerConfig { Active = true, Role = i, Servers = new List<int> { 0 } };
+                    //if (i == -1)
+                    //{
+                    //    SpinConfigManager.OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
+                    //    i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.Count - 1;
+                    //}
+                    SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] = new TrackerConfig();
                 }
 
                 GameObject TrackerInstance = Instantiate(TrackerPrefab, transform);

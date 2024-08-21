@@ -10,7 +10,7 @@ namespace Brussels.Crew.Spin
     {
         public string OSCDeviceName;
         public List<SpinConnection> Servers = new List<SpinConnection>();
-        public List<string> TrackersRoles = new List<string>();
+        public List<SpinRole> TrackersRoles = new List<SpinRole>();
         public TrackerConfig[] TrackerIds = new TrackerConfig[16];
 
         [NonSerialized] public List<OscClient> oscClients = new List<OscClient>();

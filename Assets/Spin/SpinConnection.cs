@@ -8,10 +8,12 @@ namespace Brussels.Crew.Spin
     {
         public int port;
         public string host;
-        public SpinConnection(int port, string host)
+        public string name;
+        public SpinConnection(int port, string host, string name)
         {
             this.port = port;
             this.host = host;
+            this.name = name;
         }
     }
 

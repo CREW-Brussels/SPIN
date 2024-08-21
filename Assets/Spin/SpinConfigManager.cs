@@ -5,8 +5,8 @@ namespace Brussels.Crew.Spin
 
     public class SpinConfigManager : MonoBehaviour
     {
-        public string DefaultServer = "255.255.255.255";
-        public int DefaultPort = 8000;
+        public SpinConnection DefaultServer;
+
         public string DefaultDeviceName = "Spin";
 
         public OSCTrackerConfig OSCTrackersConfig = new OSCTrackerConfig();
@@ -35,7 +35,7 @@ namespace Brussels.Crew.Spin
 
             if (OSCTrackersConfig.Servers.Count == 0)
             {
-                OSCTrackersConfig.Servers.Add(new SpinConnection(DefaultPort, DefaultServer));
+                OSCTrackersConfig.Servers.Add(DefaultServer);
                 SaveSpinConfig();
             }
 

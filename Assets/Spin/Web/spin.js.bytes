@@ -1,0 +1,131 @@
+var settings = {};
+
+const serverSchema = 
+{
+	"type": "array",
+	"items": 
+	{
+		"type": "object",
+		"properties":
+		{
+			"name":
+			{
+				"title": "Server Name",
+				"type": "string"
+			},
+			"host":
+			{
+				"title": "Host or IP Address",
+				"type": "string"
+			},
+			"port":
+			{
+				"title": "Port Number",
+				"type": "integer"
+			}
+		}
+	}
+}
+
+const trackerSchema = 
+{
+	"type": "array",
+	"items": 
+	{
+		"type": "object",
+		"properties": 
+		{
+			"Name": 
+			{
+				"type": "string",
+				"readOnly": true
+			},
+			"Battery": 
+			{
+				"type": "number",
+				"readOnly": true
+			},
+			"Online": 
+			{
+				"type": "boolean",
+				"readOnly": true
+			},
+			"TrackingPosition": 
+			{
+				"type": "boolean",
+				"readOnly": true
+			},
+			"TrackingRotation": 
+			{
+				"type": "boolean",
+				"readOnly": true
+			}
+		}
+	}
+}
+
+const BrutusinForms = brutusin["json-forms"];
+
+var bf_servers = BrutusinForms.create(serverSchema);
+
+var Serversform = document.getElementById('servers');
+
+var bf_trackers = BrutusinForms.create(trackerSchema);
+
+var Trackersform = document.getElementById('trackers');
+
+function UpdateServersForm()
+{
+	const request = new Request("/settings", {method: "GET"});
+
+	fetch(request).then((response) => response.json()).then((data) => 
+	{
+		Serversform.replaceChildren(); 
+		bf_servers.render(Serversform, data.Servers);
+	});
+}
+
+function UpdateTrackersForm()
+{
+	const request = new Request("/settings", {method: "GET"});
+
+	fetch(request).then((response) => response.json()).then((data) => 
+	{
+		Trackersform.replaceChildren(); 
+		bf_trackers.render(Trackersform, data.TrackerIds);
+	});
+}
+
+function ApplyServersForm()
+{
+	if (!bf_servers.validate())
+	{
+		alert("invalid data");
+		return;
+	}
+	
+	const requestIn = new Request("/settings", {method: "GET"});
+
+	fetch(requestIn).then((response) => response.json()).then((data) => 
+	{
+		data.Servers = bf_servers.getData();
+		
+		const requestOut = new Request("/settings", {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(data)
+		});
+
+		fetch(requestOut).then((response) =>
+		{
+			UpdateServersForm();
+		});
+	});
+}
+
+
+	
+
+
+
+

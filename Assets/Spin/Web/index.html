@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>SPIN Configuration</title>
+	<link rel="stylesheet" href='json-forms-1.6.3/css/brutusin-json-forms.min.css'/>
+	<script src="json-forms-1.6.3/js/brutusin-json-forms.min.js"></script>
+
+</head>
+
+<body>
+	<h1>Spin Configuration</h1>
+	
+	<h2>Servers</h2>
+	<button type="button" onClick="UpdateServersForm();">Refresh</button>
+	<button type="button" onClick="ApplyServersForm();">Apply</button>
+	<div id="servers"></div>
+	
+	<h2>Trackers</h2>
+	<button type="button" onClick="UpdateTrackersForm();">Refresh</button>
+	<div id="trackers"></div>
+	
+	<script src="/spin.js"></script>
+</body>
+
+</html>
