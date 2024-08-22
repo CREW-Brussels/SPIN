@@ -1,0 +1,153 @@
+body {
+  font-family: "Verdana"; 
+}
+
+.tracker {
+  width: 120px;
+  height: 60px;
+  background: lightgray;
+  margin : 16px;
+  border-radius: 8px;
+  display: grid;
+  grid-template-rows: 33%;
+  grid-template-columns: 33%;
+  float: left;
+  text-align: center;
+  color: gray;
+  padding: 5px;
+}
+
+.tracker-name {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.battery {
+  font-family: "dripicons-v2";
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.data-unavailable {
+  color:gray;
+}
+
+.pos {
+  font-family: "dripicons-v2";
+  grid-column: 1;
+  grid-row:2;
+}
+
+.rot {
+  font-family: "dripicons-v2";
+  grid-column: 1;
+  grid-row:3;
+}
+
+.data-good {
+  color:darkgreen;
+}
+
+.data-bad {
+	color: darkred;
+}
+
+.battery-very-low {
+  color:red;
+}
+
+.battery-low {
+  color:darkred;
+}
+
+.battery-high {
+  color:green;
+}
+
+.battery-full {
+  color:green;
+}
+
+.tracker-online {
+  background:lightgreen;
+  color: darkgreen;
+}
+
+.item-value {
+  background-color: lightblue;
+  border-radius: 10px;
+}
+
+button {
+  border: none;
+  background: none;
+  font-size: x-large;
+  margin-left: 110px;
+  position: relative;
+  color: green;
+  font-weight: bold;
+}
+
+item {
+  width: 80% !important;;
+  display: flex; 
+}
+
+.remove:hover {
+  color: red;
+}
+
+.remove {
+  font-family: "dripicons-v2";
+  visibility: hidden;
+  color: darkred;
+  margin-left: 0px;
+  font-weight: initial;
+}
+
+.remove::after {
+  content: '9';
+  visibility: visible;
+}
+
+form.brutusin-form table table
+{
+  border: none;
+  margin:unset;
+}
+
+.refresh:hover {
+  color: green;
+}
+
+.refresh {
+  font-family: "dripicons-v2";
+  visibility: hidden;
+  font-size: x-large;
+  color: darkgreen;
+  margin-left: 0px;
+  font-weight: initial;
+}
+
+.refresh::after {
+  content: 'Z';
+  visibility: visible;
+}
+
+.apply:hover {
+  color: blue;
+}
+
+.apply {
+  font-family: "dripicons-v2";
+  visibility: hidden;
+  font-size: x-large;
+  color: darkblue;
+  margin-left: 0px;
+  font-weight: initial;
+}
+
+.apply::after {
+  content: 'S';
+  visibility: visible;
+}

@@ -1,9 +1,16 @@
-var settings = {};
+const BrutusinForms = brutusin["json-forms"];
 
-const serverSchema = 
+BrutusinForms.messages = {
+        "addItem": "+",
+        "true": "True",
+        "false": "False"
+};
+
+// Servers
+const serverSchema =
 {
 	"type": "array",
-	"items": 
+	"items":
 	{
 		"type": "object",
 		"properties":
@@ -27,72 +34,17 @@ const serverSchema =
 	}
 }
 
-const trackerSchema = 
-{
-	"type": "array",
-	"items": 
-	{
-		"type": "object",
-		"properties": 
-		{
-			"Name": 
-			{
-				"type": "string",
-				"readOnly": true
-			},
-			"Battery": 
-			{
-				"type": "number",
-				"readOnly": true
-			},
-			"Online": 
-			{
-				"type": "boolean",
-				"readOnly": true
-			},
-			"TrackingPosition": 
-			{
-				"type": "boolean",
-				"readOnly": true
-			},
-			"TrackingRotation": 
-			{
-				"type": "boolean",
-				"readOnly": true
-			}
-		}
-	}
-}
-
-const BrutusinForms = brutusin["json-forms"];
-
 var bf_servers = BrutusinForms.create(serverSchema);
-
 var Serversform = document.getElementById('servers');
-
-var bf_trackers = BrutusinForms.create(trackerSchema);
-
-var Trackersform = document.getElementById('trackers');
 
 function UpdateServersForm()
 {
 	const request = new Request("/settings", {method: "GET"});
 
-	fetch(request).then((response) => response.json()).then((data) => 
+	fetch(request).then((response) => response.json()).then((data) =>
 	{
-		Serversform.replaceChildren(); 
+		Serversform.replaceChildren();
 		bf_servers.render(Serversform, data.Servers);
-	});
-}
-
-function UpdateTrackersForm()
-{
-	const request = new Request("/settings", {method: "GET"});
-
-	fetch(request).then((response) => response.json()).then((data) => 
-	{
-		Trackersform.replaceChildren(); 
-		bf_trackers.render(Trackersform, data.TrackerIds);
 	});
 }
 
@@ -103,13 +55,13 @@ function ApplyServersForm()
 		alert("invalid data");
 		return;
 	}
-	
+
 	const requestIn = new Request("/settings", {method: "GET"});
 
-	fetch(requestIn).then((response) => response.json()).then((data) => 
+	fetch(requestIn).then((response) => response.json()).then((data) =>
 	{
 		data.Servers = bf_servers.getData();
-		
+
 		const requestOut = new Request("/settings", {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -123,9 +75,252 @@ function ApplyServersForm()
 	});
 }
 
+// Trackers
 
+var Trackersform = document.getElementById('trackers');
+
+function UpdateTrackersForm()
+{
+	const request = new Request("/settings", {method: "GET"});
+
+	fetch(request).then((response) => response.json()).then((data) =>
+	{
+		Trackersform.replaceChildren();
+		//bf_trackers.render(Trackersform, data.TrackerIds);
+		for (i = 0; i < data.TrackerIds.length; i++)
+		{
+			div = document.createElement("div");
+			div.classList.add("tracker");
+			div.innerHTML = "<div class='tracker-name'>" + data.TrackerIds[i].Name + "</div>";
+			if (data.TrackerIds[i].Online)
+				div.classList.add("tracker-online");
+			
+			bat = document.createElement("div");
+			bat.classList.add("battery");
+			if (!data.TrackerIds[i].Online)
+			{
+				bat.classList.add("data-unavailable")
+				bat.innerHTML = "t";
+			}
+			else if (data.TrackerIds[i].Battery < 0.05)
+			{
+				bat.classList.add("battery-very-low");
+				bat.innerHTML = "t";
+			}
+			else if (data.TrackerIds[i].Battery < 0.3)
+			{
+				bat.classList.add("battery-low");
+				bat.innerHTML = "v";
+			}
+			else if (data.TrackerIds[i].Battery < 0.6)
+			{
+				bat.classList.add("battery-high");
+				bat.innerHTML = "w";
+			}
+			else
+			{
+				bat.classList.add("battery-full");
+				bat.innerHTML = "u";
+			}
+			bat.title = Math.floor(data.TrackerIds[i].Battery * 100) + "%";
+			div.appendChild(bat);
+			
+			pos = document.createElement("div");
+			pos.classList.add("pos");
+			pos.innerHTML = "!";
+			pos.title = "Position Tracking"
+			if (!data.TrackerIds[i].Online)
+			{
+				pos.classList.add("data-unavailable")
+			
+			}
+			else if (data.TrackerIds[i].TrackingPosition)
+			{
+				pos.classList.add("data-good")
+			}
+			else
+			{
+				pos.classList.add("data-bad")
+				pos.title = "Position Tracking Lost"
+			}
+			div.appendChild(pos);	
+			
+			rot = document.createElement("div");
+			rot.classList.add("rot");
+			rot.innerHTML = "&";
+			rot.title = "Rotation Tracking"
+			if (!data.TrackerIds[i].Online)
+			{
+				rot.classList.add("data-unavailable")
+			
+			}
+			else if (data.TrackerIds[i].TrackingPosition)
+			{
+				rot.classList.add("data-good")
+			}
+			else
+			{
+				rot.classList.add("data-bad")
+				rot.title = "Rotation Tracking Lost"
+			}
+			div.appendChild(rot);	
+
+			Trackersform.appendChild(div);
+		}
+	});
+}
+
+
+// Roles
+const roleSchema =
+{
+	"type": "array",
+	"items":
+	{
+		"type": "object",
+		"properties":
+		{
+			"name":
+			{
+				"type": "string"
+			},
+			"address":
+			{
+				"type": "string"
+			},
+			"active":
+			{
+				"type": "boolean"
+			},
+			"servers":
+			{
+				"type": "array",
+				"items": {
+					"type": "string",
+					"enum": []
+				}
+			},
+				"tracker": {
+				"type": "string",
+				"enum": []
+			}
+		}
+	}
+}
+
+var Rolesform = document.getElementById('roles');
+var bf_roles = null;
+
+function GenerateRoleShema(data)
+{
+	schema = JSON.parse(JSON.stringify(roleSchema));
 	
+	trackersAvailable = [];
+	for (i = 0; i < data.TrackerIds.length; i++)
+	{
+		if (data.TrackerIds[i].Online)
+			trackersAvailable.push(data.TrackerIds[i].Name);
+	}
+	for (i = 0; i < data.TrackerIds.length; i++)
+	{
+		if (!data.TrackerIds[i].Online)
+			trackersAvailable.push(data.TrackerIds[i].Name);
+	}
+	
+	serversAvailable = []
+	for (i = 0; i < data.Servers.length; i++)
+	{
+		serversAvailable.push(data.Servers[i].name);
+	}
+	
+	schema.items.properties.servers.items.enum = serversAvailable;
+	schema.items.properties.tracker.enum = trackersAvailable;
+	
+	return schema;
+}
 
+function ParseRoleData(data)
+{
+	for (r = 0; r < data.TrackersRoles.length; r++)
+	{
+		tracker = -1;
+		for (t = 0; t < data.TrackerIds.length; t++)
+			if (data.TrackersRoles[r].tracker == data.TrackerIds[t].Name)
+				tracker = t;
+		data.TrackersRoles[r].tracker = tracker;
+		
+		serv = [];
+		for (ts = 0; ts < data.TrackersRoles[r].servers.length; ts++)
+			for (s = 0; s < data.Servers.length; s++)
+				if (data.TrackersRoles[r].servers[ts] == data.Servers[s].name)
+					serv.push(s);
+		data.TrackersRoles[r].servers = serv;
+	}
+	return data;
+}
 
+function UpdateRolesForm()
+{
+	const request = new Request("/settings", {method: "GET"});
 
+	fetch(request).then((response) => response.json()).then((data) =>
+	{
 
+		bf_roles = BrutusinForms.create(GenerateRoleShema(data));
+		Rolesform.replaceChildren();
+		bf_roles.render(Rolesform, UpdateRolesData(data).TrackersRoles);
+	});
+}
+
+function UpdateRolesData(data)
+{
+	for (r = 0; r < data.TrackersRoles.length; r++)
+	{
+		if (data.TrackersRoles[r].tracker >= 0 && data.TrackersRoles[r].tracker < data.TrackerIds.length)
+			data.TrackersRoles[r].tracker = data.TrackerIds[data.TrackersRoles[r].tracker].Name;
+		else
+			data.TrackersRoles[r].tracker = "";
+		
+		for (s = 0; s < data.TrackersRoles[r].servers.length; s++)
+		{
+			if (data.TrackersRoles[r].servers[s] >= 0 && data.TrackersRoles[r].servers[s] < data.Servers.length)
+				data.TrackersRoles[r].servers[s] = data.Servers[data.TrackersRoles[r].servers[s]].name;
+		}
+	}
+	return data;
+}
+
+function ApplyRolesForm()
+{
+	if (bf_roles.validate())
+	{
+		alert("invalid data");
+		//return;
+	}
+
+	const requestIn = new Request("/settings", {method: "GET"});
+
+	fetch(requestIn).then((response) => response.json()).then((data) =>
+	{
+		data.TrackersRoles = bf_roles.getData();
+
+		const requestOut = new Request("/settings", {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(ParseRoleData(data))
+		});
+
+		console.log(data);
+
+		fetch(requestOut).then((response) =>
+		{
+			UpdateRolesForm();
+		});
+	});
+}
+
+// on documment ready
+UpdateServersForm();
+UpdateRolesForm();
+UpdateTrackersForm();
+setInterval(() => { UpdateTrackersForm(); }, 2000);
