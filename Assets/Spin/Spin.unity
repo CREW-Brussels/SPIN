@@ -444,6 +444,7 @@ GameObject:
   m_Component:
   - component: {fileID: 801188252}
   - component: {fileID: 801188251}
+  - component: {fileID: 801188253}
   m_Layer: 0
   m_Name: SpinConfigManager
   m_TagString: Untagged
@@ -463,13 +464,96 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b3bdac9d64183b4b99f2ffd3685015c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultServer: 255.255.255.255
-  DefaultPort: 8000
+  DefaultServer:
+    port: 8000
+    host: 255.255.255.255
+    name: Broadcast
   DefaultDeviceName: Spin
   OSCTrackersConfig:
     OSCDeviceName: 
     Servers: []
     TrackersRoles: []
+    TrackerIds:
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
+    - Name: 
+      Battery: 0
+      Online: 0
+      TrackingPosition: 0
+      TrackingRotation: 0
 --- !u!4 &801188252
 Transform:
   m_ObjectHideFlags: 0
@@ -485,6 +569,44 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &801188253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 801188250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee9503d95f760b74da90565b2a2f5feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Port: 8080
+  files:
+  - path: /
+    contentType: text/html
+    file: {fileID: 4900000, guid: c74b473b6d4cc8c42875da0e2734f61d, type: 3}
+  - path: /json-forms-1.6.3/css/brutusin-json-forms.min.css
+    contentType: text/css
+    file: {fileID: 4900000, guid: 5b1659401e63d6a4b8dd4911e3d98d59, type: 3}
+  - path: /json-forms-1.6.3/js/brutusin-json-forms.min.js
+    contentType: application/javascript
+    file: {fileID: 4900000, guid: 5be299ab9afb91544bb0fab0c08e5e36, type: 3}
+  - path: /spin.js
+    contentType: application/javascript
+    file: {fileID: 4900000, guid: c67d446a510fa51468ef7e458dae4fa9, type: 3}
+  - path: /spin.css
+    contentType: text/css
+    file: {fileID: 4900000, guid: 7c46befac8ba386469765f9a60989367, type: 3}
+  - path: /dripicons-2/webfont/webfont.css
+    contentType: text/css
+    file: {fileID: 4900000, guid: a78444c2026db63458806b6ae1fd8d7e, type: 3}
+  - path: /dripicons-2/webfont/fonts/dripicons-v2.woff
+    contentType: font/woff2
+    file: {fileID: 4900000, guid: d3befdac877eb8d4abca758e1cf5ad98, type: 3}
+  - path: /dripicons-2/webfont/fonts/dripicons-v2.ttf
+    contentType: font/ttf
+    file: {fileID: 4900000, guid: cf092de3a20f6694289091ce1be51cdd, type: 3}
 --- !u!1 &1722623867
 GameObject:
   m_ObjectHideFlags: 0

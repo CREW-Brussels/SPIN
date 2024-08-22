@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.Essence.Tracker;
+using Wave.Native;
 
 namespace Brussels.Crew.Spin
 {
@@ -19,6 +20,21 @@ namespace Brussels.Crew.Spin
 #if UNITY_EDITOR
         public bool Debug = false;
 #endif
+
+        private int role
+        {
+            get
+            {
+                if (_role == -1 && spinConfigManager != null)
+                {
+                    for (int i = 0; i < spinConfigManager.OSCTrackersConfig.TrackersRoles.Count; i++)
+                        if (spinConfigManager.OSCTrackersConfig.TrackersRoles[i].tracker == TrackerId)
+                            _role = i;
+                }
+                return _role;
+            }
+        }
+        private int _role = -1;
 
         private string OSCAddress;
         private TrackerManager trackerManager;
@@ -51,15 +67,19 @@ namespace Brussels.Crew.Spin
             SpinConfigManager.Instance.SaveSpinConfig();
         }
 
-        private void ConfigUpdateEvent() => UpdateOSCAddress();
+        private void ConfigUpdateEvent()
+        {
+            _role = -1;
+            UpdateOSCAddress();
+        }
 
         public string UpdateOSCAddress(string adr = null)
         {
-            if (string.IsNullOrEmpty(spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Role]))
-                spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Role] = TrackerId.ToString();
+            if (role == -1)
+                return "/" + TrackerId.ToString();
 
             if (adr == null)
-                OSCAddress = "/" + spinConfigManager.OSCTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + spinConfigManager.OSCTrackersConfig.TrackersRoles[spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Role].Trim('/').Trim();
+                OSCAddress = "/" + spinConfigManager.OSCTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + spinConfigManager.OSCTrackersConfig.TrackersRoles[role].address.Trim('/').Trim();
             else
                 OSCAddress = adr;
 
@@ -134,19 +154,21 @@ namespace Brussels.Crew.Spin
         private InputTrackingState _TrackingState;
         private void SendOSCMessage()
         {
+            if (role == -1)
+                return;
+                if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active
 #if UNITY_EDITOR
-            if (spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Active || Debug)
-#else
-        if (spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Active)
+                || Debug
 #endif
+                )
             {
-                foreach (int server in spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Servers)
+                foreach (int server in spinConfigManager.OSCTrackersConfig.TrackersRoles[role].servers)
                 {
                     if (spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
                     {
                         spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
                         spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
-                        spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Battery", trackerManager.GetTrackerBatteryLife(TrackerId));
+                        spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Battery", BatteryValue);
                     }
                 }
             }
@@ -154,11 +176,11 @@ namespace Brussels.Crew.Spin
 
         void Update()
         {
+            if (trackerManager.IsTrackerConnected(TrackerId)
 #if UNITY_EDITOR
-            if (trackerManager.IsTrackerConnected(TrackerId) || Debug)
-#else
-        if (trackerManager.IsTrackerConnected(TrackerId))
+                || Debug
 #endif
+                )
             {
                 ShowInfo = true;
 
@@ -166,9 +188,10 @@ namespace Brussels.Crew.Spin
                 transform.position = !Debug ? trackerManager.GetTrackerPosition(TrackerId) : GetFakePosition();
                 transform.rotation = !Debug ? trackerManager.GetTrackerRotation(TrackerId) : GetFakeRotation();
 #else
-            transform.position = trackerManager.GetTrackerPosition(TrackerId);
-            transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
+                transform.position = trackerManager.GetTrackerPosition(TrackerId);
+                transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
 #endif
+
                 BatteryValue = trackerManager.GetTrackerBatteryLife(TrackerId);
                 InputTrackingState TS;
                 trackerManager.GetTrackerTrackingState(TrackerId, out TS);

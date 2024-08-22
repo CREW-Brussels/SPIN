@@ -1,0 +1,161 @@
+meta {
+  name: set config
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/settings
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "OSCDeviceName": "Success",
+    "Servers": [
+      {
+        "port": 8000,
+        "host": "255.255.255.255",
+        "name": "Broadcast"
+      },
+          {
+        "port": 8000,
+        "host": "192.168.0.90",
+        "name": "one computer"
+      }
+    ],
+    "TrackersRoles": [
+      "The/first/Tracker",
+      "Tracker1",
+      "Tracker2",
+      "Tracker3",
+      "Tracker4",
+      "Tracker5",
+      "Tracker6",
+      "Tracker7",
+      "Tracker8",
+      "Tracker9",
+      "Tracker10",
+      "Tracker11",
+      "Tracker12",
+      "Tracker13",
+      "Tracker14",
+      "Tracker15"
+    ],
+    "TrackerIds": [
+      {
+        "Servers": [
+          0,1
+        ],
+        "Role": 0,
+        "Name": "Tracker0"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 1,
+        "Name": "Tracker1"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 2,
+        "Name": "Tracker2"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 3,
+        "Name": "Tracker3"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 4,
+        "Name": "Tracker4"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 5,
+        "Name": "Tracker5"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 6,
+        "Name": "Tracker6"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 7,
+        "Name": "Tracker7"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 8,
+        "Name": "Tracker8"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 9,
+        "Name": "Tracker9"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 10,
+        "Name": "Tracker10"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 11,
+        "Name": "Tracker11"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 12,
+        "Name": "Tracker12"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 13,
+        "Name": "Tracker13"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 14,
+        "Name": "Tracker14"
+      },
+      {
+        "Servers": [
+          0
+        ],
+        "Role": 15,
+        "Name": "Tracker15"
+      }
+    ]
+  }
+}
