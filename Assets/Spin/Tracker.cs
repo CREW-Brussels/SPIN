@@ -79,7 +79,11 @@ namespace Brussels.Crew.Spin
                 return "/" + TrackerId.ToString();
 
             if (adr == null)
+            {
+                if (spinConfigManager.OSCTrackersConfig.OSCDeviceName == null)
+                    spinConfigManager.OSCTrackersConfig.OSCDeviceName = "Spin";
                 OSCAddress = "/" + spinConfigManager.OSCTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + spinConfigManager.OSCTrackersConfig.TrackersRoles[role].address.Trim('/').Trim();
+            }
             else
                 OSCAddress = adr;
 
