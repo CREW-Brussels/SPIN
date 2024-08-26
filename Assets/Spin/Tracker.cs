@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
@@ -169,14 +170,21 @@ namespace Brussels.Crew.Spin
 
             if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active)
             {
-                foreach (int server in spinConfigManager.OSCTrackersConfig.TrackersRoles[role].servers)
+                try
                 {
-                    if (spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
+                    foreach (int server in spinConfigManager.OSCTrackersConfig.TrackersRoles[role].servers)
                     {
-                        spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
-                        spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
-                        spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Battery", BatteryValue);
+                        if (spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
+                        {
+                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
+                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
+                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Battery", BatteryValue);
+                        }
                     }
+                }
+                catch(Exception e)
+                {
+                    //print("Error " + e.Message);
                 }
             }
         }
