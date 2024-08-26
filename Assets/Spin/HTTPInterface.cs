@@ -1,14 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Mail;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using UnityEditor.PackageManager.Requests;
+using System.Net.Sockets;
+using TMPro;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 namespace Brussels.Crew.Spin
 {
@@ -24,7 +20,7 @@ namespace Brussels.Crew.Spin
     {
         public int Port = 8080;
         public List<HTTPFile> files;
-
+        public TMP_Text iptext;
         private HttpListener _listener;
         private SpinConfigManager configManager;
         private Queue<HttpListenerContext> httpListenerContexts = new Queue<HttpListenerContext>();
@@ -36,7 +32,24 @@ namespace Brussels.Crew.Spin
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://*:" + Port.ToString() + "/");
             _listener.Start();
+
+            iptext.text = GetLocalIPAddress() + ":" + Port.ToString();
+
+
             Receive();
+        }
+
+        private static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
         }
 
         private void Receive()
