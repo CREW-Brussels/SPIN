@@ -191,7 +191,7 @@ namespace Brussels.Crew.Spin
 
 
 
-        void FixedUpdate()
+        void Update()
         {
             bool connected = trackerManager.IsTrackerConnected(TrackerId);
 
@@ -203,31 +203,32 @@ namespace Brussels.Crew.Spin
             if (connected)
             {
                 ShowInfo = true;
-                
+
                 transform.position = trackerManager.GetTrackerPosition(TrackerId);
                 transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
-                
-                #if UNITY_EDITOR
+
+#if UNITY_EDITOR
                 if (Debug)
                 {
                     transform.position = GetFakePosition();
                     transform.rotation = GetFakeRotation();
                 }
-                #endif
+#endif
 
                 BatteryValue = trackerManager.GetTrackerBatteryLife(TrackerId);
                 InputTrackingState TS;
                 trackerManager.GetTrackerTrackingState(TrackerId, out TS);
 
                 TrackingState = TS;
-
                 SendOSCMessage();
+
             }
             else
                 ShowInfo = false;
         }
 
-        #if UNITY_EDITOR
+
+#if UNITY_EDITOR
         private Quaternion GetFakeRotation()
         {
             return Quaternion.Euler(.1f * Time.frameCount % 360, 0f, 0f);

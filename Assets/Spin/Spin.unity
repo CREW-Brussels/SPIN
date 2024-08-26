@@ -609,6 +609,9 @@ MonoBehaviour:
   - path: /dripicons-2/webfont/fonts/dripicons-v2.ttf
     contentType: font/ttf
     file: {fileID: 4900000, guid: cf092de3a20f6694289091ce1be51cdd, type: 3}
+  - path: /favicon.ico
+    contentType: image/vnd.microsoft.icon
+    file: {fileID: 4900000, guid: ea61831f27cf46e4c9fd7e3a468f6fd4, type: 3}
   iptext: {fileID: 1796963457}
 --- !u!1 &1722623867
 GameObject:
