@@ -58,7 +58,7 @@ namespace Brussels.Crew.Spin
             Save = true;
         }
 
-        private void LateUpdate()
+        private void FixedUpdate()
         {
             if (Save)
             {
