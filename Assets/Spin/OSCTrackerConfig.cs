@@ -9,6 +9,7 @@ namespace Brussels.Crew.Spin
     public class OSCTrackerConfig
     {
         public string OSCDeviceName;
+        public int OSCRefreshRate;
         public List<SpinConnection> Servers = new List<SpinConnection>();
         public List<SpinRole> TrackersRoles = new List<SpinRole>();
         public TrackerConfig[] TrackerIds = new TrackerConfig[16];

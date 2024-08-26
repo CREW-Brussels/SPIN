@@ -33,6 +33,9 @@ namespace Brussels.Crew.Spin
                 OSCTrackersConfig = JsonUtility.FromJson<OSCTrackerConfig>(PlayerPrefs.GetString("SpinConfig"));
             }
 
+            if (OSCTrackersConfig.OSCRefreshRate < 1)
+                OSCTrackersConfig.OSCRefreshRate = (int) (1 / Time.fixedDeltaTime);
+
             if (OSCTrackersConfig.Servers.Count == 0)
             {
                 OSCTrackersConfig.Servers.Add(DefaultServer);
@@ -60,6 +63,7 @@ namespace Brussels.Crew.Spin
             if (Save)
             {
                 Save = false;
+                Time.fixedDeltaTime = 1 / OSCTrackersConfig.OSCRefreshRate;
                 string config = JsonUtility.ToJson(OSCTrackersConfig);
                 Debug.Log("Config save " + config);
                 PlayerPrefs.SetString("SpinConfig", config);

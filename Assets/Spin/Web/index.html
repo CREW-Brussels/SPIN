@@ -9,29 +9,35 @@
 	<link rel="stylesheet" href='spin.css'/>
 	<link rel="stylesheet" href='/dripicons-2/webfont/webfont.css'/>
 	<script src="json-forms-1.6.3/js/brutusin-json-forms.min.js"></script>
-
 </head>
 
 <body>
-	<h1>Spin Configuration</h1>
-	
+	<h1>SPIN Configuration</h1>
+
+	<h2>
+		Host
+		<button title="refresh host config" class="refresh" type="button" onClick="UpdateHostForm();"></button>
+		<button title="apply changes to host" class="apply" type="button" onClick="ApplyHostForm();"></button>
+	</h2>
+	<div id="host"></div>
+		
 	<h2>
 		Servers
 		<button title="refresh servers" class="refresh" type="button" onClick="UpdateServersForm();"></button>
 		<button title="apply changes to servers" class="apply" type="button" onClick="ApplyServersForm();"></button>
 	</h2>
 	<div id="servers"></div>
-	
+
 	<h2>
 		Roles
 		<button title="refresh roles" class="refresh" type="button" onClick="UpdateRolesForm();"></button>
 		<button title="apply changes to roles" class="apply" type="button" onClick="ApplyRolesForm();"></button>
 	</h2>
 	<div id="roles"></div>
-	
+
 	<h2>Trackers</h2>
 	<div id="trackers"></div>
-	
+
 	<script src="/spin.js"></script>
 </body>
 

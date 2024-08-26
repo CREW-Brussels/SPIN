@@ -6,6 +6,70 @@ BrutusinForms.messages = {
         "false": "False"
 };
 
+// Host
+const hostSchema =
+{
+	"type": "object",
+	"properties":
+	{
+		"OSCDeviceName":
+		{
+			"type": "string",
+			"title": "Device Name"
+		},
+		"OSCRefreshRate":
+		{
+			"type": "integer",
+			"title": "RefreshRate"
+		}
+	}
+}
+
+var bf_host = BrutusinForms.create(hostSchema);
+var Hostform = document.getElementById('host');
+
+function UpdateHostForm()
+{
+	const request = new Request("/settings", {method: "GET"});
+
+	fetch(request).then((response) => response.json()).then((data) =>
+	{
+		Hostform.replaceChildren();
+		bf_host.render(Hostform, data);
+	});
+}
+
+function ApplyHostForm()
+{
+	if (!bf_host.validate())
+	{
+		alert("invalid data");
+		return;
+	}
+
+	const requestIn = new Request("/settings", {method: "GET"});
+
+	fetch(requestIn).then((response) => response.json()).then((data) =>
+	{
+		
+		formdata = bf_host.getData();
+		
+		data.OSCDeviceName = formdata.OSCDeviceName;
+		data.OSCRefreshRate = formdata.OSCRefreshRate;
+
+		const requestOut = new Request("/settings", {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(data)
+		});
+
+		fetch(requestOut).then((response) =>
+		{
+			UpdateServersForm();
+		});
+	});
+}
+
 // Servers
 const serverSchema =
 {
@@ -294,7 +358,7 @@ function ApplyRolesForm()
 {
 	if (bf_roles.validate())
 	{
-		alert("invalid data");
+		//alert("invalid data");
 		//return;
 	}
 
@@ -320,6 +384,7 @@ function ApplyRolesForm()
 }
 
 // on documment ready
+UpdateHostForm();
 UpdateServersForm();
 UpdateRolesForm();
 UpdateTrackersForm();

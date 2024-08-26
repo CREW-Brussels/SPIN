@@ -156,11 +156,7 @@ namespace Brussels.Crew.Spin
         {
             if (role == -1)
                 return;
-                if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active
-#if UNITY_EDITOR
-                || Debug
-#endif
-                )
+            if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active)
             {
                 foreach (int server in spinConfigManager.OSCTrackersConfig.TrackersRoles[role].servers)
                 {
@@ -174,7 +170,7 @@ namespace Brussels.Crew.Spin
             }
         }
 
-        void Update()
+        void FixedUpdate()
         {
             if (trackerManager.IsTrackerConnected(TrackerId)
 #if UNITY_EDITOR
@@ -185,8 +181,8 @@ namespace Brussels.Crew.Spin
                 ShowInfo = true;
 
 #if UNITY_EDITOR
-                transform.position = !Debug ? trackerManager.GetTrackerPosition(TrackerId) : GetFakePosition();
-                transform.rotation = !Debug ? trackerManager.GetTrackerRotation(TrackerId) : GetFakeRotation();
+                transform.position = trackerManager.GetTrackerPosition(TrackerId);
+                transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
 #else
                 transform.position = trackerManager.GetTrackerPosition(TrackerId);
                 transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
