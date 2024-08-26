@@ -17,9 +17,9 @@ namespace Brussels.Crew.Spin
         public TMP_Text Status;
         public TMP_Text Bat;
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         public bool Debug = false;
-#endif
+        #endif
 
         private int role
         {
@@ -152,15 +152,18 @@ namespace Brussels.Crew.Spin
             }
         }
         private InputTrackingState _TrackingState;
+
         private void SendOSCMessage()
         {
             if (role == -1)
                 return;
-                if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active
-#if UNITY_EDITOR
-                || Debug
-#endif
-                )
+
+            #if UNITY_EDITOR
+            if (Debug)
+                spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active = true;
+            #endif
+
+            if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active)
             {
                 foreach (int server in spinConfigManager.OSCTrackersConfig.TrackersRoles[role].servers)
                 {
@@ -174,23 +177,31 @@ namespace Brussels.Crew.Spin
             }
         }
 
-        void Update()
+
+
+        void FixedUpdate()
         {
-            if (trackerManager.IsTrackerConnected(TrackerId)
-#if UNITY_EDITOR
-                || Debug
-#endif
-                )
+            bool connected = trackerManager.IsTrackerConnected(TrackerId);
+
+            #if UNITY_EDITOR
+            if (Debug)
+                connected = true;
+            #endif
+
+            if (connected)
             {
                 ShowInfo = true;
-
-#if UNITY_EDITOR
-                transform.position = !Debug ? trackerManager.GetTrackerPosition(TrackerId) : GetFakePosition();
-                transform.rotation = !Debug ? trackerManager.GetTrackerRotation(TrackerId) : GetFakeRotation();
-#else
+                
                 transform.position = trackerManager.GetTrackerPosition(TrackerId);
                 transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
-#endif
+                
+                #if UNITY_EDITOR
+                if (Debug)
+                {
+                    transform.position = GetFakePosition();
+                    transform.rotation = GetFakeRotation();
+                }
+                #endif
 
                 BatteryValue = trackerManager.GetTrackerBatteryLife(TrackerId);
                 InputTrackingState TS;
@@ -204,7 +215,7 @@ namespace Brussels.Crew.Spin
                 ShowInfo = false;
         }
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         private Quaternion GetFakeRotation()
         {
             return Quaternion.Euler(.1f * Time.frameCount % 360, 0f, 0f);
@@ -214,7 +225,8 @@ namespace Brussels.Crew.Spin
         {
             return new Vector3(Mathf.Cos(.1f * Time.frameCount), Mathf.Sin(.1f * Time.frameCount));
         }
-#endif
+        #endif
+
         private void OnDestroy()
         {
             spinConfigManager.ConfigUpdatedEvent -= ConfigUpdateEvent;

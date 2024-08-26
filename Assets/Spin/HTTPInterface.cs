@@ -53,7 +53,7 @@ namespace Brussels.Crew.Spin
             }
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             HttpListenerContext context;
             if (httpListenerContexts.TryDequeue(out context))
