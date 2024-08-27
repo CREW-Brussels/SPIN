@@ -176,9 +176,15 @@ namespace Brussels.Crew.Spin
                     {
                         if (spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
                         {
-                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Position", transform.position.x, transform.position.y, transform.position.z);
-                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Rotation", transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
-                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress + "/Battery", BatteryValue);
+                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress,
+                                transform.position.x,
+                                transform.position.y,
+                                transform.position.z,
+                                transform.rotation.w,
+                                transform.rotation.x,
+                                transform.rotation.y,
+                                transform.rotation.z,
+                                BatteryValue);
                         }
                     }
                 }
