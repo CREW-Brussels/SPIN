@@ -188,7 +188,7 @@ namespace Brussels.Crew.Spin
                         }
                     }
                 }
-                catch(Exception e)
+                catch
                 {
                     //print("Error " + e.Message);
                 }
