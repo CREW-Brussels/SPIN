@@ -14,6 +14,8 @@ namespace Brussels.Crew.Spin
         public delegate void ConfigUpdated();
         public ConfigUpdated ConfigUpdatedEvent;
 
+        public bool Send;
+
         private static SpinConfigManager instance = null;
         public static SpinConfigManager Instance => instance;
 
@@ -32,9 +34,6 @@ namespace Brussels.Crew.Spin
                 Debug.Log("Config load " + PlayerPrefs.GetString("SpinConfig"));
                 OSCTrackersConfig = JsonUtility.FromJson<OSCTrackerConfig>(PlayerPrefs.GetString("SpinConfig"));
             }
-
-            if (OSCTrackersConfig.OSCRefreshRate < 1)
-                OSCTrackersConfig.OSCRefreshRate = (int) (1 / Time.fixedDeltaTime);
 
             if (OSCTrackersConfig.Servers.Count == 0)
             {
@@ -58,12 +57,21 @@ namespace Brussels.Crew.Spin
             Save = true;
         }
 
+        private float LastMessage;
+
         private void Update()
         {
+            Send = false;
+
+            if (Time.time - LastMessage >= 1 / (float)OSCTrackersConfig.OSCRefreshRate)
+            {
+                Send = true;
+                LastMessage = Time.time;
+            }
+
             if (Save)
             {
                 Save = false;
-                Time.fixedDeltaTime = 1 / OSCTrackersConfig.OSCRefreshRate;
                 string config = JsonUtility.ToJson(OSCTrackersConfig);
                 Debug.Log("Config save " + config);
                 PlayerPrefs.SetString("SpinConfig", config);

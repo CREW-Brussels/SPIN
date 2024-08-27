@@ -226,7 +226,8 @@ namespace Brussels.Crew.Spin
                 trackerManager.GetTrackerTrackingState(TrackerId, out TS);
 
                 TrackingState = TS;
-                SendOSCMessage();
+                if (spinConfigManager.Send)
+                    SendOSCMessage();
 
             }
             else
