@@ -338,7 +338,7 @@ PrefabInstance:
     - target: {fileID: 7471202952708050078, guid: be3d9716d14868d42a47f740f224b521,
         type: 3}
       propertyPath: m_TrackingOrigin
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -564,6 +564,7 @@ MonoBehaviour:
       Online: 0
       TrackingPosition: 0
       TrackingRotation: 0
+  Send: 0
 --- !u!4 &801188252
 Transform:
   m_ObjectHideFlags: 0
