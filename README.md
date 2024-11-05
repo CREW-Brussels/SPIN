@@ -1,7 +1,10 @@
 # SPIN (SPatial Interface Network)
-SPIN is an app that runs on a a Vive Focus 3 (it probably works on other Vive VR hedsets) and acts as a bridge to use Vive Trackers such as Vive Ultimate Trackers on other platforms.
+SPIN is an app that runs on a a Vive Focus 3 (it probably works on other Vive VR hedsets) and acts as a bridge to use [Vive Trackers](https://www.vive.com/us/support/vive-xr/category_howto/installing-tracker-accessories.html) such as Vive Ultimate Trackers on other platforms.
 
 SPIN uses [Open Sound Control (OSC)](https://en.wikipedia.org/wiki/Open_Sound_Control) to stream the trackers position and orientation on the network as well as battery status.
+
+## Demo Video 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/atiAZ8TPYQ0/0.jpg)](https://www.youtube.com/watch?v=atiAZ8TPYQ0 )
 
 ## Data format
 The data uses Unity's coordinate system (left handed, Y up), each data packet is composed of a position vector, a rotation quaternion and a battery status float as an float[8] array.
