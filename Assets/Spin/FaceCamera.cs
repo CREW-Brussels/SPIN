@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Brussels.Crew.Spin
+namespace Brussels.Crew.Spin.Spin
 {
 
     public class FaceCamera : MonoBehaviour

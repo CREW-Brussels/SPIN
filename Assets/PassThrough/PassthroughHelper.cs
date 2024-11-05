@@ -2,23 +2,26 @@ using System;
 using UnityEngine;
 using Wave.Native;
 
-[Serializable]
-public class PassthroughHelper
+namespace PassThrough
 {
-    [SerializeField] private Camera hmd;
-
-    public void ShowPassthroughUnderlay(bool show)
+    [Serializable]
+    public class PassthroughHelper
     {
-        if (show)
-        {
-            hmd.clearFlags = CameraClearFlags.SolidColor;
-            hmd.backgroundColor = new Color(.3f, .5f, .3f, 0);
-        }
-        else
-        {
-            hmd.clearFlags = CameraClearFlags.Skybox;
-        }
+        [SerializeField] private Camera hmd;
 
-        Interop.WVR_ShowPassthroughUnderlay(show);
+        public void ShowPassthroughUnderlay(bool show)
+        {
+            if (show)
+            {
+                hmd.clearFlags = CameraClearFlags.SolidColor;
+                hmd.backgroundColor = new Color(.15f, .25f, .15f, 0);
+            }
+            else
+            {
+                hmd.clearFlags = CameraClearFlags.Skybox;
+            }
+
+            Interop.WVR_ShowPassthroughUnderlay(show);
+        }
     }
 }

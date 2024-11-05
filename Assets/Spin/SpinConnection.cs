@@ -1,6 +1,6 @@
 using System;
 
-namespace Brussels.Crew.Spin
+namespace Brussels.Crew.Spin.Spin
 {
 
     [Serializable]

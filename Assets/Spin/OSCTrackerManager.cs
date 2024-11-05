@@ -1,9 +1,10 @@
-using OscJack;
 using System;
+using OscJack;
+//using Base;
 using UnityEngine;
 using Wave.Essence.Tracker;
 
-namespace Brussels.Crew.Spin
+namespace Brussels.Crew.Spin.Spin
 {
 
     public class OSCTrackerManager : MonoBehaviour

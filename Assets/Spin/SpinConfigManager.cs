@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Brussels.Crew.Spin
+namespace Brussels.Crew.Spin.Spin
 {
 
     public class SpinConfigManager : MonoBehaviour
@@ -29,10 +29,10 @@ namespace Brussels.Crew.Spin
 
         private void RestoreSpinConfig()
         {
-            if (PlayerPrefs.HasKey("SpinConfig"))
+            if (PlayerPrefs.HasKey("SpinConfig" + Application.version))
             {
-                Debug.Log("Config load " + PlayerPrefs.GetString("SpinConfig"));
-                OSCTrackersConfig = JsonUtility.FromJson<OSCTrackerConfig>(PlayerPrefs.GetString("SpinConfig"));
+                Debug.Log("Config load " + PlayerPrefs.GetString("SpinConfig" + Application.version));
+                OSCTrackersConfig = JsonUtility.FromJson<OSCTrackerConfig>(PlayerPrefs.GetString("SpinConfig" + Application.version));
             }
 
             if (OSCTrackersConfig.Servers.Count == 0)
@@ -63,6 +63,9 @@ namespace Brussels.Crew.Spin
         {
             Send = false;
 
+            if (OSCTrackersConfig.OSCRefreshRate < 1)
+                OSCTrackersConfig.OSCRefreshRate = 60;
+            
             if (Time.time - LastMessage >= 1 / (float)OSCTrackersConfig.OSCRefreshRate)
             {
                 Send = true;
@@ -73,8 +76,8 @@ namespace Brussels.Crew.Spin
             {
                 Save = false;
                 string config = JsonUtility.ToJson(OSCTrackersConfig);
-                Debug.Log("Config save " + config);
-                PlayerPrefs.SetString("SpinConfig", config);
+//                Debug.Log("Config save " + config);
+                PlayerPrefs.SetString("SpinConfig" + Application.version, config);
                 if (ConfigUpdatedEvent != null)
                     ConfigUpdatedEvent.Invoke();
             }

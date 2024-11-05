@@ -1,12 +1,10 @@
-using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.Essence.Tracker;
-using Wave.Native;
 
-namespace Brussels.Crew.Spin
+namespace Brussels.Crew.Spin.Spin
 {
 
     public class Tracker : MonoBehaviour
@@ -26,7 +24,7 @@ namespace Brussels.Crew.Spin
         {
             get
             {
-                if (_role == -1 && spinConfigManager != null)
+                if (_role == -1 && spinConfigManager)
                 {
                     for (int i = 0; i < spinConfigManager.OSCTrackersConfig.TrackersRoles.Count; i++)
                         if (spinConfigManager.OSCTrackersConfig.TrackersRoles[i].tracker == TrackerId)
@@ -199,7 +197,15 @@ namespace Brussels.Crew.Spin
 
         void Update()
         {
-            bool connected = trackerManager.IsTrackerConnected(TrackerId);
+            bool connected = false;
+            try
+            {
+                connected = trackerManager.IsTrackerConnected(TrackerId);
+            }
+            catch
+            {
+                connected = false;
+            }
 
             #if UNITY_EDITOR
             if (Debug)

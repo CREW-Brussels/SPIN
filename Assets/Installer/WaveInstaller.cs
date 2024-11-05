@@ -1,158 +1,157 @@
 ﻿#if UNITY_EDITOR
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UI;
 
-[InitializeOnLoad]
-public class WaveInstaller : MonoBehaviour
+namespace Installer
 {
-	[MenuItem("VIVE/Wave Installer/Install or Update latest version")]
-	private static void AddGITPackages()
+	[InitializeOnLoad]
+	public class WaveInstaller : MonoBehaviour
 	{
-		AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.xrsdk");
-		AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.native");
-		AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.essence");
-	}
-
-	public InputField betInput;
-	public static string inputString = "";
-
-	[MenuItem("VIVE/Wave Installer/Install specific version")]
-	private static void AddGITPackagesByVersion()
-	{
-		var version = EditorInputDialog.Show("Question", "Please enter the version", "");
-		if (!string.IsNullOrEmpty(version))
+		[MenuItem("VIVE/Wave Installer/Install or Update latest version")]
+		private static void AddGITPackages()
 		{
-			Debug.Log("version " + version);
-
-			AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.xrsdk#versions/" + version);
-			AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.native#versions/" + version);
-			AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.essence#versions/" + version);
+			AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.xrsdk");
+			AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.native");
+			AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.essence");
 		}
-	}
 
-	public class EditorInputDialog : EditorWindow
-	{
-		string description, inputText;
-		string okButton, cancelButton;
-		bool initializedPosition = false;
-		Action onOKButton;
+		public InputField betInput;
+		public static string inputString = "";
 
-		bool shouldClose = false;
-
-		#region OnGUI()
-		void OnGUI()
+		[MenuItem("VIVE/Wave Installer/Install specific version")]
+		private static void AddGITPackagesByVersion()
 		{
-			// Check if Esc/Return have been pressed
-			var e = Event.current;
-			if (e.type == EventType.KeyDown)
+			var version = EditorInputDialog.Show("Question", "Please enter the version", "");
+			if (!string.IsNullOrEmpty(version))
 			{
-				switch (e.keyCode)
-				{
-					// Escape pressed
-					case KeyCode.Escape:
-						shouldClose = true;
-						break;
+				Debug.Log("version " + version);
 
-					// Enter pressed
-					case KeyCode.Return:
-					case KeyCode.KeypadEnter:
-						onOKButton?.Invoke();
-						shouldClose = true;
-						break;
+				AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.xrsdk#versions/" + version);
+				AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.native#versions/" + version);
+				AddPackage("https://github.com/ViveSoftware/VIVE-Wave.git?path=com.htc.upm.wave.essence#versions/" + version);
+			}
+		}
+
+		public class EditorInputDialog : EditorWindow
+		{
+			string description, inputText;
+			string okButton, cancelButton;
+			bool initializedPosition = false;
+			Action onOKButton;
+
+			bool shouldClose = false;
+
+			#region OnGUI()
+			void OnGUI()
+			{
+				// Check if Esc/Return have been pressed
+				var e = Event.current;
+				if (e.type == EventType.KeyDown)
+				{
+					switch (e.keyCode)
+					{
+						// Escape pressed
+						case KeyCode.Escape:
+							shouldClose = true;
+							break;
+
+						// Enter pressed
+						case KeyCode.Return:
+						case KeyCode.KeypadEnter:
+							onOKButton?.Invoke();
+							shouldClose = true;
+							break;
+					}
+				}
+
+				if (shouldClose)
+				{  // Close this dialog
+					Close();
+					//return;
+				}
+
+				// Draw our control
+				var rect = EditorGUILayout.BeginVertical();
+
+				EditorGUILayout.Space(12);
+				EditorGUILayout.LabelField(description);
+
+				EditorGUILayout.Space(8);
+				GUI.SetNextControlName("inText");
+				inputText = EditorGUILayout.TextField("", inputText);
+				GUI.FocusControl("inText");   // Focus text field
+				EditorGUILayout.Space(12);
+
+				// Draw OK / Cancel buttons
+				var r = EditorGUILayout.GetControlRect();
+				r.width /= 2;
+				if (GUI.Button(r, okButton))
+				{
+					onOKButton?.Invoke();
+					shouldClose = true;
+				}
+
+				r.x += r.width;
+				if (GUI.Button(r, cancelButton))
+				{
+					inputText = null;   // Cancel - delete inputText
+					shouldClose = true;
+				}
+
+				EditorGUILayout.Space(8);
+				EditorGUILayout.EndVertical();
+
+				// Force change size of the window
+				if (rect.width != 0 && minSize != rect.size)
+				{
+					minSize = maxSize = rect.size;
+				}
+
+				// Set dialog position next to mouse position
+				if (!initializedPosition)
+				{
+					var mousePos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+					position = new Rect(mousePos.x + 32, mousePos.y, position.width, position.height);
+					initializedPosition = true;
 				}
 			}
+			#endregion OnGUI()
 
-			if (shouldClose)
-			{  // Close this dialog
-				Close();
-				//return;
-			}
-
-			// Draw our control
-			var rect = EditorGUILayout.BeginVertical();
-
-			EditorGUILayout.Space(12);
-			EditorGUILayout.LabelField(description);
-
-			EditorGUILayout.Space(8);
-			GUI.SetNextControlName("inText");
-			inputText = EditorGUILayout.TextField("", inputText);
-			GUI.FocusControl("inText");   // Focus text field
-			EditorGUILayout.Space(12);
-
-			// Draw OK / Cancel buttons
-			var r = EditorGUILayout.GetControlRect();
-			r.width /= 2;
-			if (GUI.Button(r, okButton))
+			#region Show()
+			/// <summary>
+			/// Returns text player entered, or null if player cancelled the dialog.
+			/// </summary>
+			/// <param name="title"></param>
+			/// <param name="description"></param>
+			/// <param name="inputText"></param>
+			/// <param name="okButton"></param>
+			/// <param name="cancelButton"></param>
+			/// <returns></returns>
+			public static string Show(string title, string description, string inputText, string okButton = "OK", string cancelButton = "Cancel")
 			{
-				onOKButton?.Invoke();
-				shouldClose = true;
-			}
+				string ret = null;
+				//var window = EditorWindow.GetWindow<InputDialog>();
+				var window = CreateInstance<EditorInputDialog>();
+				window.titleContent = new GUIContent(title);
+				window.description = description;
+				window.inputText = inputText;
+				window.okButton = okButton;
+				window.cancelButton = cancelButton;
+				window.onOKButton += () => ret = window.inputText;
+				window.ShowModal();
 
-			r.x += r.width;
-			if (GUI.Button(r, cancelButton))
-			{
-				inputText = null;   // Cancel - delete inputText
-				shouldClose = true;
+				return ret;
 			}
-
-			EditorGUILayout.Space(8);
-			EditorGUILayout.EndVertical();
-
-			// Force change size of the window
-			if (rect.width != 0 && minSize != rect.size)
-			{
-				minSize = maxSize = rect.size;
-			}
-
-			// Set dialog position next to mouse position
-			if (!initializedPosition)
-			{
-				var mousePos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
-				position = new Rect(mousePos.x + 32, mousePos.y, position.width, position.height);
-				initializedPosition = true;
-			}
+			#endregion Show()
 		}
-		#endregion OnGUI()
 
-		#region Show()
-		/// <summary>
-		/// Returns text player entered, or null if player cancelled the dialog.
-		/// </summary>
-		/// <param name="title"></param>
-		/// <param name="description"></param>
-		/// <param name="inputText"></param>
-		/// <param name="okButton"></param>
-		/// <param name="cancelButton"></param>
-		/// <returns></returns>
-		public static string Show(string title, string description, string inputText, string okButton = "OK", string cancelButton = "Cancel")
+		static bool AddPackage(string packageFolder)
 		{
-			string ret = null;
-			//var window = EditorWindow.GetWindow<InputDialog>();
-			var window = CreateInstance<EditorInputDialog>();
-			window.titleContent = new GUIContent(title);
-			window.description = description;
-			window.inputText = inputText;
-			window.okButton = okButton;
-			window.cancelButton = cancelButton;
-			window.onOKButton += () => ret = window.inputText;
-			window.ShowModal();
-
-			return ret;
-		}
-		#endregion Show()
-	}
-
-	static bool AddPackage(string packageFolder)
-	{
-		Debug.Log("Processing package folder: " + packageFolder);
+			Debug.Log("Processing package folder: " + packageFolder);
 
 			var addRequest = Client.Add(packageFolder);
 			while (!addRequest.IsCompleted)
@@ -168,6 +167,7 @@ public class WaveInstaller : MonoBehaviour
 			}
 			catch (Exception) { }
 			return true;
+		}
 	}
 }
 #endif

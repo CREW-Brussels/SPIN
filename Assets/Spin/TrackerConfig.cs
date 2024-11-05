@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using System;
 
-namespace Brussels.Crew.Spin
+namespace Brussels.Crew.Spin.Spin
 {
 
     [Serializable]

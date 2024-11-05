@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Wave.Essence.Tracker;
 
-namespace Brussels.Crew.Spin
+namespace Brussels.Crew.Spin.Spin
 {
 [Serializable]
     public class SpinRole
