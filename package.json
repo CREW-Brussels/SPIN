@@ -1,0 +1,20 @@
+{
+  "name": "brussels.crew.spin",
+  "version": "1.1.0",
+  "displayName": "SPIN (SPatial Interface Network)",
+  "description": "SPIN is an app that runs on a a Vive Focus 3 (it probably works on other Vive VR hedsets) and acts as a bridge to use Vive Trackers such as Vive Ultimate Trackers on other platforms.",
+  "unity": "2022.3",
+  "unityRelease": "41f1",
+  "documentationUrl": "https://github.com/CREW-Brussels/SPIN",
+  "licensesUrl": "https://github.com/CREW-Brussels/SPIN/blob/main/LICENSE",
+  "dependencies": {
+    "com.htc.upm.wave.essence": "6.1.0-r.8",
+    "com.htc.upm.wave.native": "6.1.0-r.8",
+    "com.htc.upm.wave.xrsdk": "6.1.0-r.8",
+    "jp.keijiro.osc-jack": "2.0.0"
+  },
+  "author": {
+    "name": "CREW",
+    "url": "crew.brussels"
+  }
+}
