@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Brussels.Crew.Spin.Spin
 {
-
     public class SpinConfigManager : MonoBehaviour
     {
         public SpinConnection DefaultServer;
@@ -76,7 +75,6 @@ namespace Brussels.Crew.Spin.Spin
             {
                 Save = false;
                 string config = JsonUtility.ToJson(OSCTrackersConfig);
-//                Debug.Log("Config save " + config);
                 PlayerPrefs.SetString("SpinConfig" + Application.version, config);
                 if (ConfigUpdatedEvent != null)
                     ConfigUpdatedEvent.Invoke();

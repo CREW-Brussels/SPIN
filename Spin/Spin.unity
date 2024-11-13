@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1030544ffb9343446a710549a36cdb96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_InitialStartTracker: 0
+  m_InitialStartTracker: 1
   m_OnSwipeToRight:
     m_PersistentCalls:
       m_Calls: []

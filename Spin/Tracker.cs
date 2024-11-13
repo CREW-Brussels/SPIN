@@ -52,9 +52,10 @@ namespace Brussels.Crew.Spin.Spin
             if (ID != null)
                 ID.text = trackerId.ToString();
 
-            string name = trackerManager.GetTrackerDeviceName(trackerId);
-            if (string.IsNullOrEmpty(name))
-                name = trackerId.ToString();
+            string name =  trackerId.ToString();
+            // string name = trackerManager.GetTrackerDeviceName(trackerId);
+            // if (string.IsNullOrEmpty(name))
+            //     name = trackerId.ToString();
 
             if (Name != null)
                 Name.text = name;
@@ -94,10 +95,7 @@ namespace Brussels.Crew.Spin.Spin
 
         private bool ShowInfo
         {
-            get
-            {
-                return _ShowInfo;
-            }
+            get => _ShowInfo;
             set
             {
                 if (_ShowInfo != value)
@@ -113,10 +111,7 @@ namespace Brussels.Crew.Spin.Spin
 
         private float BatteryValue
         {
-            get
-            {
-                return _BatteryValue;
-            }
+            get => _BatteryValue;
             set
             {
                 if (_BatteryValue != value)
@@ -132,10 +127,7 @@ namespace Brussels.Crew.Spin.Spin
 
         private InputTrackingState TrackingState
         {
-            get
-            {
-                return _TrackingState;
-            }
+            get => _TrackingState;
             set
             {
                 if (_TrackingState != value)
@@ -156,7 +148,7 @@ namespace Brussels.Crew.Spin.Spin
         }
         private InputTrackingState _TrackingState;
 
-        private void SendOSCMessage()
+        private void SendOSCMessage(InputTrackingState ts)
         {
             if (role == -1)
                 return;
@@ -168,13 +160,13 @@ namespace Brussels.Crew.Spin.Spin
 
             if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active)
             {
-                try
-                {
+                // try
+                // {
                     foreach (int server in spinConfigManager.OSCTrackersConfig.TrackersRoles[role].servers)
                     {
                         if (spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
                         {
-                            spinConfigManager.OSCTrackersConfig.oscClients[server].Send(OSCAddress,
+                            spinConfigManager.OSCTrackersConfig.oscClients[server].SendSpinMessage(OSCAddress,
                                 transform.position.x,
                                 transform.position.y,
                                 transform.position.z,
@@ -182,22 +174,32 @@ namespace Brussels.Crew.Spin.Spin
                                 transform.rotation.x,
                                 transform.rotation.y,
                                 transform.rotation.z,
-                                BatteryValue);
+                                BatteryValue,
+                                (uint)ts
+                            );
                         }
                     }
-                }
-                catch
-                {
-                    //print("Error " + e.Message);
-                }
+                // }
+                // catch
+                // {
+                //     //print("Error " + e.Message);
+                // }
             }
         }
 
-
-
+        private bool connected
+        {
+            get => _connected;
+            set
+            {
+                if (_connected != value)
+                    spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Online = value;
+                _connected = value;
+            }
+        }
+        private bool _connected = false;
         void Update()
         {
-            bool connected = false;
             try
             {
                 connected = trackerManager.IsTrackerConnected(TrackerId);
@@ -215,7 +217,7 @@ namespace Brussels.Crew.Spin.Spin
             if (connected)
             {
                 ShowInfo = true;
-
+                
                 transform.position = trackerManager.GetTrackerPosition(TrackerId);
                 transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
 
@@ -233,8 +235,7 @@ namespace Brussels.Crew.Spin.Spin
 
                 TrackingState = TS;
                 if (spinConfigManager.Send)
-                    SendOSCMessage();
-
+                    SendOSCMessage(TS);
             }
             else
                 ShowInfo = false;
