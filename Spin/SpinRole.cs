@@ -11,6 +11,6 @@ namespace Brussels.Crew.Spin.Spin
         public string address;
         public bool active;
         public List<int> servers;
-        public TrackerId tracker;
+        public int tracker;
     }
 }

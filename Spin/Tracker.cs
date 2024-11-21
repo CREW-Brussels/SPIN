@@ -2,7 +2,9 @@ using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.XR;
+using Wave.Essence;
 using Wave.Essence.Tracker;
+using Wave.Native;
 
 namespace Brussels.Crew.Spin.Spin
 {
@@ -37,12 +39,40 @@ namespace Brussels.Crew.Spin.Spin
 
         private string OSCAddress;
         private TrackerManager trackerManager;
-        private TrackerId TrackerId;
+        private int TrackerId;
         private SpinConfigManager spinConfigManager;
+        private WVR_DeviceType DeviceType = WVR_DeviceType.WVR_DeviceType_Invalid;
+        public void Init(WVR_DeviceType deviceType, int id)
+        {
+            TrackerId = id;
+            DeviceType = deviceType;
+            spinConfigManager = SpinConfigManager.Instance;
+            trackerManager = TrackerManager.Instance;
 
+            spinConfigManager.ConfigUpdatedEvent += ConfigUpdateEvent;
+
+            if (ID != null)
+                ID.text = deviceType.ToString();
+
+            string name =  deviceType.ToString();
+            
+            string textToTrim = "WVR_DeviceType_";
+
+            if (name.StartsWith(textToTrim))
+                name = name.Remove(0, textToTrim.Length);
+
+            if (Name != null)
+                Name.text = name;
+
+            spinConfigManager.OSCTrackersConfig.TrackerIds[id].Name = name;
+
+            UpdateOSCAddress();
+
+            SpinConfigManager.Instance.SaveSpinConfig();        }
+        
         public void Init(TrackerId trackerId)
         {
-            TrackerId = trackerId;
+            TrackerId = (int)trackerId;
 
             spinConfigManager = SpinConfigManager.Instance;
             trackerManager = TrackerManager.Instance;
@@ -53,9 +83,6 @@ namespace Brussels.Crew.Spin.Spin
                 ID.text = trackerId.ToString();
 
             string name =  trackerId.ToString();
-            // string name = trackerManager.GetTrackerDeviceName(trackerId);
-            // if (string.IsNullOrEmpty(name))
-            //     name = trackerId.ToString();
 
             if (Name != null)
                 Name.text = name;
@@ -101,7 +128,7 @@ namespace Brussels.Crew.Spin.Spin
                 if (_ShowInfo != value)
                 {
                     _ShowInfo = value;
-                    if (Canvas != null)
+                    if (Canvas)
                         Canvas.SetActive(value);
                     spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Online = value;
                 }
@@ -118,7 +145,14 @@ namespace Brussels.Crew.Spin.Spin
                 {
                     _BatteryValue = value;
                     if (Bat != null)
-                        Bat.text = "Battery " + trackerManager.GetTrackerBatteryLife(TrackerId).ToString("P1", CultureInfo.InvariantCulture);
+                    {
+                        double bat;
+                        if (DeviceType == WVR_DeviceType.WVR_DeviceType_HMD)
+                            bat = trackerManager.GetTrackerBatteryLife((TrackerId)TrackerId);
+                        else
+                            bat = 0; // TODO: find the actual value
+                        Bat.text = "Battery " + bat.ToString("P1", CultureInfo.InvariantCulture);
+                    }
                     spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Battery = value;
                 }
             }
@@ -133,7 +167,7 @@ namespace Brussels.Crew.Spin.Spin
                 if (_TrackingState != value)
                 {
                     _TrackingState = value;
-                    if (Status != null)
+                    if (Status)
                     {
                         string pos = (value & InputTrackingState.Position) != 0 ? "green" : "red";
                         string rot = (value & InputTrackingState.Rotation) != 0 ? "green" : "red";
@@ -202,7 +236,10 @@ namespace Brussels.Crew.Spin.Spin
         {
             try
             {
-                connected = trackerManager.IsTrackerConnected(TrackerId);
+                if (DeviceType == WVR_DeviceType.WVR_DeviceType_HMD)
+                    connected = trackerManager.IsTrackerConnected((TrackerId)TrackerId);
+                else
+                    connected = WaveEssence.Instance.IsConnected(DeviceType);
             }
             catch
             {
@@ -217,9 +254,17 @@ namespace Brussels.Crew.Spin.Spin
             if (connected)
             {
                 ShowInfo = true;
-                
-                transform.position = trackerManager.GetTrackerPosition(TrackerId);
-                transform.rotation = trackerManager.GetTrackerRotation(TrackerId);
+
+                if (DeviceType == WVR_DeviceType.WVR_DeviceType_HMD)
+                {
+                    transform.position = trackerManager.GetTrackerPosition((TrackerId)TrackerId);
+                    transform.rotation = trackerManager.GetTrackerRotation((TrackerId)TrackerId);
+                }
+                else
+                {
+                    transform.position = WaveEssence.Instance.GetDevicePosition(DeviceType);
+                    transform.rotation = WaveEssence.Instance.GetDeviceRotation(DeviceType);
+                }
 
 #if UNITY_EDITOR
                 if (Debug)
@@ -229,9 +274,15 @@ namespace Brussels.Crew.Spin.Spin
                 }
 #endif
 
-                BatteryValue = trackerManager.GetTrackerBatteryLife(TrackerId);
+                if (DeviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
+                    BatteryValue = trackerManager.GetTrackerBatteryLife((TrackerId)TrackerId);
+                else
+                    BatteryValue = 0; // TODO: find the actual value
                 InputTrackingState TS;
-                trackerManager.GetTrackerTrackingState(TrackerId, out TS);
+                if (DeviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
+                    trackerManager.GetTrackerTrackingState((TrackerId)TrackerId, out TS);
+                else
+                    TS = WaveEssence.Instance.IsTracked(DeviceType) ? InputTrackingState.All : InputTrackingState.None;
 
                 TrackingState = TS;
                 if (spinConfigManager.Send)

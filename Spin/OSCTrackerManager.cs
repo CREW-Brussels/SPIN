@@ -2,6 +2,7 @@ using System;
 using OscJack;
 using UnityEngine;
 using Wave.Essence.Tracker;
+using Wave.Native;
 
 namespace Brussels.Crew.Spin.Spin
 {
@@ -41,13 +42,6 @@ namespace Brussels.Crew.Spin.Spin
 
                 if (SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] == null || string.IsNullOrEmpty(SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name))
                 {
-                    //int i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.IndexOf(trackerId.ToString());
-
-                    //if (i == -1)
-                    //{
-                    //    SpinConfigManager.OSCTrackersConfig.TrackersRoles.Add(trackerId.ToString());
-                    //    i = SpinConfigManager.OSCTrackersConfig.TrackersRoles.Count - 1;
-                    //}
                     SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId] = new TrackerConfig();
                 }
 
@@ -57,6 +51,26 @@ namespace Brussels.Crew.Spin.Spin
                 SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker = TrackerInstance.GetComponent<Tracker>();
                 SpinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].tracker.Init(trackerId);
             }
+
+            foreach (WVR_DeviceType deviceType in new WVR_DeviceType[] { WVR_DeviceType.WVR_DeviceType_HMD, WVR_DeviceType.WVR_DeviceType_Controller_Left, WVR_DeviceType.WVR_DeviceType_Controller_Right })
+            {
+                if (deviceType == WVR_DeviceType.WVR_DeviceType_Invalid) continue;
+                int id = SpinConfigManager.OSCTrackersConfig.TrackerIds.Length;
+                Array.Resize(ref SpinConfigManager.OSCTrackersConfig.TrackerIds, id + 1);
+                
+                if (SpinConfigManager.OSCTrackersConfig.TrackerIds[id] == null || string.IsNullOrEmpty(SpinConfigManager.OSCTrackersConfig.TrackerIds[id].Name))
+                {
+                    SpinConfigManager.OSCTrackersConfig.TrackerIds[id] = new TrackerConfig();
+                }
+                
+                GameObject TrackerInstance = Instantiate(TrackerPrefab, transform);
+
+                TrackerInstance.transform.name = deviceType.ToString();
+                SpinConfigManager.OSCTrackersConfig.TrackerIds[id].tracker = TrackerInstance.GetComponent<Tracker>();
+                SpinConfigManager.OSCTrackersConfig.TrackerIds[id].tracker.Init(deviceType, id);
+            }
+            
+            
             SpinConfigManager.SaveSpinConfig();
         }
 
