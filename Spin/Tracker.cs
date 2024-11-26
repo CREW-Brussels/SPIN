@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
@@ -217,6 +218,28 @@ namespace Brussels.Crew.Spin.Spin
             }
         }
 
+        private void SendOscInputMessage(string button)
+        {
+            if (Role == -1)
+                return;
+
+#if UNITY_EDITOR
+            if (debug)
+                _spinConfigManager.OSCTrackersConfig.TrackersRoles[Role].active = true;
+#endif
+
+            if (_spinConfigManager.OSCTrackersConfig.TrackersRoles[Role].active)
+            {
+                foreach (int server in _spinConfigManager.OSCTrackersConfig.TrackersRoles[Role].servers)
+                {
+                    if (_spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && _spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
+                    {
+                        _spinConfigManager.OSCTrackersConfig.oscClients[server].Send(_oscAddress + "/" + button);
+                    }
+                }
+            }
+        }
+        
         private bool Connected
         {
             get => _connected;
@@ -245,6 +268,7 @@ namespace Brussels.Crew.Spin.Spin
             {
                 ShowInfo = true;
                 UpdatePosition();
+                SendButtonPressed();
                 GetBatteryLevel();
                 TrackingState = GetTrackingState();
                 if (_spinConfigManager.Send)
@@ -252,6 +276,51 @@ namespace Brussels.Crew.Spin.Spin
             }
             else
                 ShowInfo = false;
+        }
+
+        private void SendButtonPressed()
+        {
+            WVR_InputId[] validInput;
+            switch (_deviceType)
+            {
+                case WVR_DeviceType.WVR_DeviceType_HMD :
+                    validInput = new WVR_InputId[]
+                    {
+                        WVR_InputId.WVR_InputId_Alias1_Enter
+                    };
+                    break;
+                case WVR_DeviceType.WVR_DeviceType_Controller_Left:
+                    validInput = new WVR_InputId[]
+                    {
+                        WVR_InputId.WVR_InputId_Alias1_Grip, 
+                        WVR_InputId.WVR_InputId_Alias1_Trigger, 
+                        WVR_InputId.WVR_InputId_Alias1_X, 
+                        WVR_InputId.WVR_InputId_Alias1_Y, 
+                        WVR_InputId.WVR_InputId_Alias1_Thumbstick
+                    };
+                    break;
+                case WVR_DeviceType.WVR_DeviceType_Controller_Right:
+                    validInput = new WVR_InputId[]
+                    {
+                        WVR_InputId.WVR_InputId_Alias1_Grip, 
+                        WVR_InputId.WVR_InputId_Alias1_Trigger,
+                        WVR_InputId.WVR_InputId_Alias1_A, 
+                        WVR_InputId.WVR_InputId_Alias1_B,
+                        WVR_InputId.WVR_InputId_Alias1_Thumbstick
+                    };
+                    break;
+                default:
+                    validInput = new WVR_InputId[] { };
+                    break;
+            }
+
+            foreach (WVR_InputId _WVR_InputId in validInput)
+            {
+                if (WXRDevice.ButtonPress(_deviceType, _WVR_InputId))
+                {
+                    SendOscInputMessage(_WVR_InputId.ToString());
+                }
+            }
         }
 
         private InputTrackingState GetTrackingState()
