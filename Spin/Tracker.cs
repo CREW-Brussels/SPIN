@@ -1,14 +1,15 @@
 using System.Globalization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.XR;
 using Wave.Essence;
 using Wave.Essence.Tracker;
 using Wave.Native;
+using Wave.OpenXR;
 
 namespace Brussels.Crew.Spin.Spin
 {
-
     public class Tracker : MonoBehaviour
     {
         public GameObject Canvas;
@@ -19,17 +20,17 @@ namespace Brussels.Crew.Spin.Spin
         public TMP_Text Bat;
 
         #if UNITY_EDITOR
-        public bool Debug = false;
+        [FormerlySerializedAs("Debug")] public bool debug = false;
         #endif
 
-        private int role
+        private int Role
         {
             get
             {
-                if (_role == -1 && spinConfigManager)
+                if (_role == -1 && _spinConfigManager)
                 {
-                    for (int i = 0; i < spinConfigManager.OSCTrackersConfig.TrackersRoles.Count; i++)
-                        if (spinConfigManager.OSCTrackersConfig.TrackersRoles[i].tracker == TrackerId)
+                    for (int i = 0; i < _spinConfigManager.OSCTrackersConfig.TrackersRoles.Count; i++)
+                        if (_spinConfigManager.OSCTrackersConfig.TrackersRoles[i].tracker == _trackerId)
                             _role = i;
                 }
                 return _role;
@@ -37,59 +38,68 @@ namespace Brussels.Crew.Spin.Spin
         }
         private int _role = -1;
 
-        private string OSCAddress;
-        private TrackerManager trackerManager;
-        private int TrackerId;
-        private SpinConfigManager spinConfigManager;
-        private WVR_DeviceType DeviceType = WVR_DeviceType.WVR_DeviceType_Invalid;
+        private bool _connected = false;
+        private Camera _camera;
+        private string _oscAddress;
+        private TrackerManager _trackerManager;
+        private int _trackerId;
+        private SpinConfigManager _spinConfigManager;
+        private WVR_DeviceType _deviceType = WVR_DeviceType.WVR_DeviceType_Invalid;
+
+        private void Start()
+        {
+            _camera = Camera.main;
+        }
+
         public void Init(WVR_DeviceType deviceType, int id)
         {
-            TrackerId = id;
-            DeviceType = deviceType;
-            spinConfigManager = SpinConfigManager.Instance;
-            trackerManager = TrackerManager.Instance;
+            _trackerId = id;
+            _deviceType = deviceType;
+            _spinConfigManager = SpinConfigManager.Instance;
+            _trackerManager = TrackerManager.Instance;
 
-            spinConfigManager.ConfigUpdatedEvent += ConfigUpdateEvent;
+            _spinConfigManager.ConfigUpdatedEvent += ConfigUpdateEvent;
 
             if (ID != null)
                 ID.text = deviceType.ToString();
 
-            string name =  deviceType.ToString();
+            string nameText =  deviceType.ToString();
             
             string textToTrim = "WVR_DeviceType_";
 
-            if (name.StartsWith(textToTrim))
-                name = name.Remove(0, textToTrim.Length);
+            if (nameText.StartsWith(textToTrim))
+                nameText = nameText.Remove(0, textToTrim.Length);
 
             if (Name != null)
-                Name.text = name;
+                Name.text = nameText;
 
-            spinConfigManager.OSCTrackersConfig.TrackerIds[id].Name = name;
+            _spinConfigManager.OSCTrackersConfig.TrackerIds[id].Name = nameText;
 
-            UpdateOSCAddress();
+            UpdateOscAddress();
 
             SpinConfigManager.Instance.SaveSpinConfig();        }
         
         public void Init(TrackerId trackerId)
         {
-            TrackerId = (int)trackerId;
+            _deviceType = WVR_DeviceType.WVR_DeviceType_Invalid;
+            _trackerId = (int)trackerId;
 
-            spinConfigManager = SpinConfigManager.Instance;
-            trackerManager = TrackerManager.Instance;
+            _spinConfigManager = SpinConfigManager.Instance;
+            _trackerManager = TrackerManager.Instance;
 
-            spinConfigManager.ConfigUpdatedEvent += ConfigUpdateEvent;
+            _spinConfigManager.ConfigUpdatedEvent += ConfigUpdateEvent;
 
             if (ID != null)
                 ID.text = trackerId.ToString();
 
-            string name =  trackerId.ToString();
+            string nameText =  trackerId.ToString();
 
             if (Name != null)
-                Name.text = name;
+                Name.text = nameText;
 
-            spinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name = name;
+            _spinConfigManager.OSCTrackersConfig.TrackerIds[(int)trackerId].Name = nameText;
 
-            UpdateOSCAddress();
+            UpdateOscAddress();
 
             SpinConfigManager.Instance.SaveSpinConfig();
         }
@@ -97,76 +107,69 @@ namespace Brussels.Crew.Spin.Spin
         private void ConfigUpdateEvent()
         {
             _role = -1;
-            UpdateOSCAddress();
+            UpdateOscAddress();
         }
 
-        public string UpdateOSCAddress(string adr = null)
+        private string UpdateOscAddress(string adr = null)
         {
-            if (role == -1)
-                return "/" + TrackerId.ToString();
+            if (Role == -1)
+                return "/" + _trackerId.ToString();
 
             if (adr == null)
             {
-                if (spinConfigManager.OSCTrackersConfig.OSCDeviceName == null)
-                    spinConfigManager.OSCTrackersConfig.OSCDeviceName = "Spin";
-                OSCAddress = "/" + spinConfigManager.OSCTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + spinConfigManager.OSCTrackersConfig.TrackersRoles[role].address.Trim('/').Trim();
+                if (_spinConfigManager.OSCTrackersConfig.OSCDeviceName == null)
+                    _spinConfigManager.OSCTrackersConfig.OSCDeviceName = "Spin";
+                _oscAddress = "/" + _spinConfigManager.OSCTrackersConfig.OSCDeviceName.Trim('/').Trim() + "/" + _spinConfigManager.OSCTrackersConfig.TrackersRoles[Role].address.Trim('/').Trim();
             }
             else
-                OSCAddress = adr;
+                _oscAddress = adr;
 
-            if (Address != null)
-                Address.text = OSCAddress;
+            if (Address)
+                Address.text = _oscAddress;
 
-            return OSCAddress;
+            return _oscAddress;
         }
 
         private bool ShowInfo
         {
-            get => _ShowInfo;
+            get => _showInfo;
             set
             {
-                if (_ShowInfo != value)
+                if (_showInfo != value)
                 {
-                    _ShowInfo = value;
+                    _showInfo = value;
                     if (Canvas)
                         Canvas.SetActive(value);
-                    spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Online = value;
+                    _spinConfigManager.OSCTrackersConfig.TrackerIds[(int)_trackerId].Online = value;
                 }
             }
         }
-        private bool _ShowInfo = true;
+        private bool _showInfo = true;
 
         private float BatteryValue
         {
-            get => _BatteryValue;
+            get => _batteryValue;
             set
             {
-                if (_BatteryValue != value)
+                if (!Mathf.Approximately(_batteryValue, value))
                 {
-                    _BatteryValue = value;
-                    if (Bat != null)
-                    {
-                        double bat;
-                        if (DeviceType == WVR_DeviceType.WVR_DeviceType_HMD)
-                            bat = trackerManager.GetTrackerBatteryLife((TrackerId)TrackerId);
-                        else
-                            bat = 0; // TODO: find the actual value
-                        Bat.text = "Battery " + bat.ToString("P1", CultureInfo.InvariantCulture);
-                    }
-                    spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Battery = value;
+                    _batteryValue = value;
+                    if (Bat)
+                        Bat.text = "Battery " + value.ToString("P1", CultureInfo.InvariantCulture);
+                    _spinConfigManager.OSCTrackersConfig.TrackerIds[(int)_trackerId].Battery = value;
                 }
             }
         }
-        private float _BatteryValue;
+        private float _batteryValue;
 
         private InputTrackingState TrackingState
         {
-            get => _TrackingState;
+            get => _trackingState;
             set
             {
-                if (_TrackingState != value)
+                if (_trackingState != value)
                 {
-                    _TrackingState = value;
+                    _trackingState = value;
                     if (Status)
                     {
                         string pos = (value & InputTrackingState.Position) != 0 ? "green" : "red";
@@ -175,124 +178,162 @@ namespace Brussels.Crew.Spin.Spin
                         Status.richText = true;
                         Status.text = $"<color=\"{pos}\">Position <color=\"{rot}\">Rotation";
                     }
-                    spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].TrackingPosition = (value & InputTrackingState.Position) != 0;
-                    spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].TrackingRotation = (value & InputTrackingState.Rotation) != 0;
+                    _spinConfigManager.OSCTrackersConfig.TrackerIds[(int)_trackerId].TrackingPosition = (value & InputTrackingState.Position) != 0;
+                    _spinConfigManager.OSCTrackersConfig.TrackerIds[(int)_trackerId].TrackingRotation = (value & InputTrackingState.Rotation) != 0;
                 }
             }
         }
-        private InputTrackingState _TrackingState;
+        private InputTrackingState _trackingState;
 
-        private void SendOSCMessage(InputTrackingState ts)
+        private void SendOscMessage(InputTrackingState ts)
         {
-            if (role == -1)
+            if (Role == -1)
                 return;
 
             #if UNITY_EDITOR
-            if (Debug)
-                spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active = true;
+            if (debug)
+                _spinConfigManager.OSCTrackersConfig.TrackersRoles[Role].active = true;
             #endif
 
-            if (spinConfigManager.OSCTrackersConfig.TrackersRoles[role].active)
+            if (_spinConfigManager.OSCTrackersConfig.TrackersRoles[Role].active)
             {
-                // try
-                // {
-                    foreach (int server in spinConfigManager.OSCTrackersConfig.TrackersRoles[role].servers)
+                foreach (int server in _spinConfigManager.OSCTrackersConfig.TrackersRoles[Role].servers)
+                {
+                    if (_spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && _spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
                     {
-                        if (spinConfigManager.OSCTrackersConfig.oscClients.Count >= server && spinConfigManager.OSCTrackersConfig.oscClients[server] != null)
-                        {
-                            spinConfigManager.OSCTrackersConfig.oscClients[server].SendSpinMessage(OSCAddress,
-                                transform.position.x,
-                                transform.position.y,
-                                transform.position.z,
-                                transform.rotation.w,
-                                transform.rotation.x,
-                                transform.rotation.y,
-                                transform.rotation.z,
-                                BatteryValue,
-                                (uint)ts
-                            );
-                        }
+                        _spinConfigManager.OSCTrackersConfig.oscClients[server].SendSpinMessage(_oscAddress,
+                            transform.position.x,
+                            transform.position.y,
+                            transform.position.z,
+                            transform.rotation.w,
+                            transform.rotation.x,
+                            transform.rotation.y,
+                            transform.rotation.z,
+                            BatteryValue,
+                            (uint)ts
+                        );
                     }
-                // }
-                // catch
-                // {
-                //     //print("Error " + e.Message);
-                // }
+                }
             }
         }
 
-        private bool connected
+        private bool Connected
         {
             get => _connected;
             set
             {
                 if (_connected != value)
-                    spinConfigManager.OSCTrackersConfig.TrackerIds[(int)TrackerId].Online = value;
+                    _spinConfigManager.OSCTrackersConfig.TrackerIds[(int)_trackerId].Online = value;
                 _connected = value;
             }
         }
-        private bool _connected = false;
+
+        void SetHidScale()
+        {
+            float camDist = Vector3.Distance(_camera.transform.position, transform.position);
+
+            if (camDist > 2)
+                Canvas.transform.localScale = Vector3.one * (camDist * 0.0005f);
+            else
+                Canvas.transform.localScale = Vector3.one * 0.001f;
+        }
+        
         void Update()
         {
-            try
-            {
-                if (DeviceType == WVR_DeviceType.WVR_DeviceType_HMD)
-                    connected = trackerManager.IsTrackerConnected((TrackerId)TrackerId);
-                else
-                    connected = WaveEssence.Instance.IsConnected(DeviceType);
-            }
-            catch
-            {
-                connected = false;
-            }
-
-            #if UNITY_EDITOR
-            if (Debug)
-                connected = true;
-            #endif
-
-            if (connected)
+            SetHidScale();
+            if (TestConnection())
             {
                 ShowInfo = true;
-
-                if (DeviceType == WVR_DeviceType.WVR_DeviceType_HMD)
-                {
-                    transform.position = trackerManager.GetTrackerPosition((TrackerId)TrackerId);
-                    transform.rotation = trackerManager.GetTrackerRotation((TrackerId)TrackerId);
-                }
-                else
-                {
-                    transform.position = WaveEssence.Instance.GetDevicePosition(DeviceType);
-                    transform.rotation = WaveEssence.Instance.GetDeviceRotation(DeviceType);
-                }
-
-#if UNITY_EDITOR
-                if (Debug)
-                {
-                    transform.position = GetFakePosition();
-                    transform.rotation = GetFakeRotation();
-                }
-#endif
-
-                if (DeviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
-                    BatteryValue = trackerManager.GetTrackerBatteryLife((TrackerId)TrackerId);
-                else
-                    BatteryValue = 0; // TODO: find the actual value
-                InputTrackingState TS;
-                if (DeviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
-                    trackerManager.GetTrackerTrackingState((TrackerId)TrackerId, out TS);
-                else
-                    TS = WaveEssence.Instance.IsTracked(DeviceType) ? InputTrackingState.All : InputTrackingState.None;
-
-                TrackingState = TS;
-                if (spinConfigManager.Send)
-                    SendOSCMessage(TS);
+                UpdatePosition();
+                GetBatteryLevel();
+                TrackingState = GetTrackingState();
+                if (_spinConfigManager.Send)
+                    SendOscMessage(TrackingState);
             }
             else
                 ShowInfo = false;
         }
 
+        private InputTrackingState GetTrackingState()
+        {
+            InputTrackingState TS;
+            if (_deviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
+                _trackerManager.GetTrackerTrackingState((TrackerId)_trackerId, out TS);
+            else
+                TS = WaveEssence.Instance.IsTracked(_deviceType) ? InputTrackingState.All : InputTrackingState.None;
 
+            TrackingState = TS;
+            return TS;
+        }
+
+        private void GetBatteryLevel()
+        {
+            if (_deviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
+                BatteryValue = _trackerManager.GetTrackerBatteryLife((TrackerId)_trackerId);
+            else if (_deviceType == WVR_DeviceType.WVR_DeviceType_HMD)
+                BatteryValue = InputDeviceControl.GetBatteryLevel(InputDeviceControl.ControlDevice.Head);
+            else if (_deviceType == WVR_DeviceType.WVR_DeviceType_Controller_Left)
+                BatteryValue = InputDeviceControl.GetBatteryLevel(InputDeviceControl.ControlDevice.Left);
+            else if (_deviceType == WVR_DeviceType.WVR_DeviceType_Controller_Right)
+                BatteryValue = InputDeviceControl.GetBatteryLevel(InputDeviceControl.ControlDevice.Right);
+        }
+
+        private void UpdatePosition()
+        {
+            Vector3 pos;
+            Quaternion rot;
+            if (_deviceType == WVR_DeviceType.WVR_DeviceType_HMD)
+            {
+                pos = _camera.transform.position;
+                rot = _camera.transform.rotation;
+            }
+            else if (_deviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
+            {
+                pos = _trackerManager.GetTrackerPosition((TrackerId)_trackerId);
+                rot = _trackerManager.GetTrackerRotation((TrackerId)_trackerId);
+            }
+            else
+            {
+                pos = WaveEssence.Instance.GetDevicePosition(_deviceType);
+                rot = WaveEssence.Instance.GetDeviceRotation(_deviceType);
+            }
+#if UNITY_EDITOR
+            if (debug)
+            {
+                pos = GetFakePosition();
+                rot = GetFakeRotation();
+            }
+#endif
+            if (pos != Vector3.zero)
+            {
+                transform.position = pos;
+                transform.rotation = rot;
+            }
+        }
+
+        private bool TestConnection()
+        {
+            try
+            {
+                if (_deviceType == WVR_DeviceType.WVR_DeviceType_Invalid)
+                    Connected = _trackerManager.IsTrackerConnected((TrackerId)_trackerId);
+                else if (_deviceType == WVR_DeviceType.WVR_DeviceType_HMD)
+                    Connected = true;
+                else
+                    Connected = WaveEssence.Instance.IsConnected(_deviceType);
+            }
+            catch
+            {
+                Connected = false;
+            }
+
+#if UNITY_EDITOR
+            if (debug)
+                Connected = true;
+#endif
+            return Connected;
+        }
+        
 #if UNITY_EDITOR
         private Quaternion GetFakeRotation()
         {
@@ -303,13 +344,11 @@ namespace Brussels.Crew.Spin.Spin
         {
             return new Vector3(Mathf.Cos(.1f * Time.frameCount), Mathf.Sin(.1f * Time.frameCount));
         }
-        #endif
+#endif
 
         private void OnDestroy()
         {
-            spinConfigManager.ConfigUpdatedEvent -= ConfigUpdateEvent;
+            _spinConfigManager.ConfigUpdatedEvent -= ConfigUpdateEvent;
         }
-
     }
-
 }
