@@ -64,3 +64,13 @@ Tracker1's position and rotation will be sent to `broadcast` and `Another Server
 Tracker0's position and rotation will be sent to `broadcast` as /SPIN/door 50 times per seconds.
 
 ![image](https://github.com/user-attachments/assets/9adb714a-c1ea-43a5-b45a-7d51ac31f6bf)
+
+## About
+![](/.doc/img/CREW-logo.png)
+![](/.doc/img/emil.png)
+
+SPIN is being developed by [CREW](http://crew.brussels) as part of [EMIL](https://emil-xr.eu/), the European Media and Immersion Lab, an Innovation Action funded by the European Union and co-funded by Innovate UK. 
+
+## Funding
+![](.doc/img/funded-by-the-eu.png)
+This project has received funding from the European Union's Horizon Europe Research and Innovation Programme under Grant Agreement No 101070533 EMIL.
