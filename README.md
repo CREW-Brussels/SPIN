@@ -3,6 +3,8 @@ SPIN is an app that runs on a a Vive Focus 3 (it probably works on other Vive VR
 
 SPIN uses [Open Sound Control (OSC)](https://en.wikipedia.org/wiki/Open_Sound_Control) to stream the trackers position and orientation on the network as well as battery status.
 
+If you'd like to use our SPIN app with Unreal Engine, please also refer to our [SPINOsc](https://github.com/CREW-Brussels/SPINOsc) Plugin
+
 ## Demo Video 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/atiAZ8TPYQ0/0.jpg)](https://www.youtube.com/watch?v=atiAZ8TPYQ0 )
 
@@ -64,6 +66,8 @@ Tracker1's position and rotation will be sent to `broadcast` and `Another Server
 Tracker0's position and rotation will be sent to `broadcast` as /SPIN/door 50 times per seconds.
 
 ![image](https://github.com/user-attachments/assets/9adb714a-c1ea-43a5-b45a-7d51ac31f6bf)
+
+***
 
 ## About
 <img src="https://github.com/user-attachments/assets/bc9dba6e-2478-4d09-86ca-c735ae73f21b" alt="CREW-LOGO" height="70"/>  
