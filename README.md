@@ -18,7 +18,7 @@ Download the latest version [here](https://github.com/CREW-Brussels/SPIN/release
 [Installing APK files on the headset](https://www.vive.com/us/support/focus3/category_howto/installing-apk-on-headset.html).
 
 ## How to use SPIN
-Spin is intended to be left unattended (the proximity sensor should be blocked or the data rate will be limited to 1Hz) all configuration must be done through a web browser on port 8081 (the IP address is displayed in the headset for convenience).
+Spin is intended to be left unattended (the proximity sensor shouldn't be blocked or the data rate will be limited to 1Hz) all configuration must be done through a web browser on port 8081 (the IP address is displayed in the headset for convenience).
 
 ### Configuration Interface
 
